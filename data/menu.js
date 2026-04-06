@@ -1,0 +1,15 @@
+export const menuItems = [
+  { name: "Chaap Thali", price: 110 },
+  { name: "Paneer Thali", price: 160 },
+  { name: "Butter Roti", price: 15 },
+  { name: "Plain Naan", price: 20 },
+  { name: "Garlic Naan", price: 25 },
+  { name: "Mix Veg", price: 150 },
+  { name: "Dal Makhni", price: 150 },
+  { name: "Paneer Butter Masala", price: 200 },
+  { name: "Veg Noodles", price: 120 },
+  { name: "Burger", price: 100 },
+  { name: "Pizza", price: 150 },
+  { name: "Cold Coffee", price: 70 },
+  { name: "Shake", price: 100 },
+];

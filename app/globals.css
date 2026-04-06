@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 45%, #ffffff 100%);
+  color: #14532d;
+}
+
+.thermal-receipt {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px dashed #14532d;
+  color: #111827;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.thermal-divider {
+  border-top: 1px dashed #374151;
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .thermal-receipt {
+    border: none;
+    width: 80mm;
+    max-width: none;
+  }
+}
