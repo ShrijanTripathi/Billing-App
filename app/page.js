@@ -3,7 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { menuItems } from "../data/menu";
+import { fallbackMenuItems } from "../data/menu";
+import { apiRequest, API_BASE_URL } from "../services/apiClient";
+import {
+  calculateBillTotals,
+  clampDiscountPercent,
+  validateDiscountInput,
+} from "../utils/billingCalculations";
 
 const RESTAURANT = {
   name: "BALA JI FOOD ARTS",
@@ -29,31 +35,82 @@ function randomNumber(length) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+function normalizeMenu(items) {
+  return items
+    .filter((item) => item.available !== false)
+    .map((item) => ({
+      _id: item._id || item.name,
+      name: item.name,
+      price: Number(item.price),
+      category: item.category || "Uncategorized",
+    }));
+}
+
 export default function Home() {
+  const [menuItems, setMenuItems] = useState(normalizeMenu(fallbackMenuItems));
+  const [isMenuLoading, setIsMenuLoading] = useState(true);
+  const [menuError, setMenuError] = useState("");
   const [cart, setCart] = useState([]);
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [discountInput, setDiscountInput] = useState("0");
+  const [discountError, setDiscountError] = useState("");
+  const [discountPanelOpen, setDiscountPanelOpen] = useState(false);
+  const [saleType, setSaleType] = useState("ONLINE");
   const [bill, setBill] = useState(null);
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
   const receiptRef = useRef(null);
 
-  const totalQty = useMemo(
-    () => cart.reduce((sum, item) => sum + item.qty, 0),
-    [cart]
+  const totals = useMemo(() => calculateBillTotals(cart, discountPercent), [cart, discountPercent]);
+  const discountPreviewPercent = useMemo(() => clampDiscountPercent(discountInput), [discountInput]);
+  const previewTotals = useMemo(
+    () => calculateBillTotals(cart, discountPreviewPercent),
+    [cart, discountPreviewPercent]
   );
-  const grandTotal = useMemo(
-    () => cart.reduce((sum, item) => sum + item.qty * item.price, 0),
-    [cart]
-  );
+
+  useEffect(() => {
+    const loadMenu = async () => {
+      setIsMenuLoading(true);
+      setMenuError("");
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/menu`, {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to load live menu");
+        }
+
+        const data = await response.json();
+        if (Array.isArray(data.items) && data.items.length > 0) {
+          setMenuItems(normalizeMenu(data.items));
+        }
+      } catch {
+        setMenuError("Live menu unavailable, using offline fallback menu.");
+      } finally {
+        setIsMenuLoading(false);
+      }
+    };
+
+    loadMenu();
+  }, []);
 
   useEffect(() => {
     try {
       const savedCart = localStorage.getItem("balaji_cart");
       const savedBill = localStorage.getItem("balaji_last_bill");
+      const savedDiscount = localStorage.getItem("balaji_discount_percent");
       if (savedCart) setCart(JSON.parse(savedCart));
       if (savedBill) setBill(JSON.parse(savedBill));
+      if (savedDiscount) {
+        const sanitized = clampDiscountPercent(savedDiscount);
+        setDiscountPercent(sanitized);
+        setDiscountInput(String(sanitized));
+      }
     } catch {
-      // Ignore invalid persisted data and start with a clean state.
       setCart([]);
       setBill(null);
+      setDiscountPercent(0);
+      setDiscountInput("0");
     }
   }, []);
 
@@ -61,45 +118,86 @@ export default function Home() {
     try {
       localStorage.setItem("balaji_cart", JSON.stringify(cart));
     } catch {
-      // Ignore storage write failures (private mode/quota).
+      // Ignore storage write failures.
     }
   }, [cart]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("balaji_discount_percent", String(discountPercent));
+    } catch {
+      // Ignore storage write failures.
+    }
+  }, [discountPercent]);
 
   const saveBill = (nextBill) => {
     setBill(nextBill);
     try {
       localStorage.setItem("balaji_last_bill", JSON.stringify(nextBill));
     } catch {
-      // Ignore storage write failures (private mode/quota).
+      // Ignore storage write failures.
     }
   };
 
   const addItem = (menuItem) => {
     setCart((prev) => {
-      const found = prev.find((item) => item.name === menuItem.name);
+      const found = prev.find((item) => item._id === menuItem._id);
       if (!found) return [...prev, { ...menuItem, qty: 1 }];
       return prev.map((item) =>
-        item.name === menuItem.name ? { ...item, qty: item.qty + 1 } : item
+        item._id === menuItem._id ? { ...item, qty: item.qty + 1 } : item
       );
     });
   };
 
-  const changeQty = (name, delta) => {
+  const changeQty = (id, delta) => {
     setCart((prev) =>
       prev
         .map((item) =>
-          item.name === name ? { ...item, qty: Math.max(0, item.qty + delta) } : item
+          item._id === id ? { ...item, qty: Math.max(0, item.qty + delta) } : item
         )
         .filter((item) => item.qty > 0)
     );
   };
 
-  const removeItem = (name) => {
-    setCart((prev) => prev.filter((item) => item.name !== name));
+  const removeItem = (id) => {
+    setCart((prev) => prev.filter((item) => item._id !== id));
   };
 
   const clearOrder = () => {
     setCart([]);
+    setDiscountPercent(0);
+    setDiscountInput("0");
+    setDiscountError("");
+    setDiscountPanelOpen(false);
+    setSaleType("ONLINE");
+  };
+
+  const openDiscountPanel = () => {
+    setDiscountInput(String(discountPercent));
+    setDiscountError("");
+    setDiscountPanelOpen(true);
+  };
+
+  const applyDiscount = () => {
+    const parsed = validateDiscountInput(discountInput);
+    if (parsed.error) {
+      setDiscountError(parsed.error);
+      return;
+    }
+    setDiscountPercent(parsed.value);
+    setDiscountError("");
+    setDiscountPanelOpen(false);
+  };
+
+  const persistSale = async (snapshot) => {
+    try {
+      await apiRequest("/api/sales", {
+        method: "POST",
+        body: snapshot,
+      });
+    } catch {
+      // Billing should continue even if analytics persistence fails.
+    }
   };
 
   const generateBill = () => {
@@ -112,22 +210,33 @@ export default function Home() {
       nextToken = Number(localStorage.getItem("balaji_token_counter") || 0) + 1;
       localStorage.setItem("balaji_token_counter", String(nextToken));
     } catch {
-      // Fall back to a non-persistent token if storage is unavailable.
+      // Fall back to a non-persistent token.
     }
 
     const snapshot = {
+      saleType,
       billNo: randomNumber(5),
       tokenNo: nextToken,
       date,
       time,
+      billedAt: now.toISOString(),
       items: cart.map((item) => ({
-        ...item,
+        itemId: item._id,
+        name: item.name,
+        category: item.category,
+        price: item.price,
+        qty: item.qty,
         lineTotal: item.qty * item.price,
       })),
-      totalQty,
-      grandTotal,
+      totalQty: totals.totalQty,
+      subtotal: totals.subtotal,
+      discountPercent: totals.discountPercent,
+      discountAmount: totals.discountAmount,
+      grandTotal: totals.grandTotal,
     };
     saveBill(snapshot);
+    persistSale(snapshot);
+    setSaleType("ONLINE");
   };
 
   const printBill = () => {
@@ -167,20 +276,24 @@ export default function Home() {
             Balaji Ji Food Arts - Bill Generator
           </h1>
           <p className="text-sm text-brand-700">Simple POS for billing and thermal receipt printing</p>
+          <p className="mt-1 text-xs text-slate-500">Admin: /admin | API: {API_BASE_URL}</p>
+          {menuError ? <p className="mt-1 text-xs text-amber-700">{menuError}</p> : null}
         </header>
 
         <section className="grid gap-4 lg:grid-cols-2">
           <div className="no-print rounded-xl border border-brand-100 bg-white p-4 shadow-sm">
             <h2 className="mb-3 text-xl font-semibold text-brand-900">Menu</h2>
+            {isMenuLoading ? <p className="mb-2 text-sm text-slate-500">Loading live menu...</p> : null}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {menuItems.map((item) => (
                 <button
-                  key={item.name}
+                  key={item._id}
                   type="button"
                   onClick={() => addItem(item)}
                   className="rounded-lg border border-brand-100 bg-brand-50 p-3 text-left transition hover:border-brand-500 hover:bg-brand-100"
                 >
                   <div className="font-medium text-brand-900">{item.name}</div>
+                  <div className="text-xs text-slate-500">{item.category}</div>
                   <div className="text-sm text-brand-700">{"\u20B9"}{item.price}</div>
                 </button>
               ))}
@@ -194,7 +307,7 @@ export default function Home() {
             <div className="space-y-3 no-print">
               {cart.map((item) => (
                 <div
-                  key={item.name}
+                  key={item._id}
                   className="flex items-center justify-between rounded-lg border border-gray-200 p-3"
                 >
                   <div>
@@ -204,7 +317,7 @@ export default function Home() {
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => changeQty(item.name, -1)}
+                      onClick={() => changeQty(item._id, -1)}
                       className="h-8 w-8 rounded border border-gray-300 text-lg"
                     >
                       -
@@ -212,14 +325,14 @@ export default function Home() {
                     <span className="w-6 text-center font-medium">{item.qty}</span>
                     <button
                       type="button"
-                      onClick={() => changeQty(item.name, 1)}
+                      onClick={() => changeQty(item._id, 1)}
                       className="h-8 w-8 rounded border border-gray-300 text-lg"
                     >
                       +
                     </button>
                     <button
                       type="button"
-                      onClick={() => removeItem(item.name)}
+                      onClick={() => removeItem(item._id)}
                       className="rounded bg-red-50 px-2 py-1 text-xs text-red-700"
                     >
                       Remove
@@ -232,15 +345,41 @@ export default function Home() {
             <div className="no-print mt-4 rounded-lg bg-brand-50 p-3 text-sm">
               <div className="flex justify-between">
                 <span>Total Qty:</span>
-                <span>{totalQty}</span>
+                <span>{totals.totalQty}</span>
+              </div>
+              <div className="mt-1 flex justify-between">
+                <span>Subtotal:</span>
+                <span>{"\u20B9"}{totals.subtotal.toFixed(2)}</span>
+              </div>
+              <div className="mt-1 flex justify-between">
+                <span>Discount ({totals.discountPercent.toFixed(2)}%):</span>
+                <span>-{"\u20B9"}{totals.discountAmount.toFixed(2)}</span>
               </div>
               <div className="mt-1 flex justify-between font-semibold">
-                <span>Grand Total:</span>
-                <span>{"\u20B9"}{grandTotal}</span>
+                <span>Final Payable:</span>
+                <span>{"\u20B9"}{totals.grandTotal.toFixed(2)}</span>
               </div>
             </div>
 
             <div className="no-print mt-4 flex flex-wrap gap-2">
+              <div className="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                <span className="text-slate-700">Sale Type:</span>
+                <select
+                  value={saleType}
+                  onChange={(event) => setSaleType(event.target.value)}
+                  className="rounded border border-slate-300 px-2 py-1 text-sm outline-none"
+                >
+                  <option value="ONLINE">ONLINE</option>
+                  <option value="OFFLINE">OFFLINE</option>
+                </select>
+              </div>
+              <button
+                type="button"
+                onClick={openDiscountPanel}
+                className="rounded-lg border border-brand-500 px-4 py-2 text-brand-800"
+              >
+                Discount
+              </button>
               <button
                 type="button"
                 onClick={generateBill}
@@ -303,7 +442,7 @@ export default function Home() {
                       </thead>
                       <tbody>
                         {bill.items.map((item) => (
-                          <tr key={item.name}>
+                          <tr key={item._id || item.name}>
                             <td className="py-1 pr-2">{item.name}</td>
                             <td className="py-1 text-right">{item.qty}</td>
                             <td className="py-1 text-right">{item.price}</td>
@@ -318,9 +457,17 @@ export default function Home() {
                       <span>Total Qty:</span>
                       <span>{bill.totalQty}</span>
                     </div>
+                    <div className="mt-1 flex justify-between text-xs">
+                      <span>Subtotal:</span>
+                      <span>{"\u20B9"}{Number(bill.subtotal ?? bill.grandTotal ?? 0).toFixed(2)}</span>
+                    </div>
+                    <div className="mt-1 flex justify-between text-xs">
+                      <span>Discount ({Number(bill.discountPercent || 0).toFixed(2)}%):</span>
+                      <span>-{"\u20B9"}{Number(bill.discountAmount || 0).toFixed(2)}</span>
+                    </div>
                     <div className="mt-1 flex justify-between text-sm font-bold">
                       <span>Grand Total:</span>
-                      <span>{"\u20B9"}{bill.grandTotal}</span>
+                      <span>{"\u20B9"}{Number(bill.grandTotal || 0).toFixed(2)}</span>
                     </div>
                     <div className="my-2 thermal-divider" />
                     <div className="text-center text-[10px]">Thank you. Visit again.</div>
@@ -335,6 +482,65 @@ export default function Home() {
           </div>
         </section>
       </div>
+
+      {discountPanelOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
+          <div className="w-full max-w-sm rounded-xl bg-white p-4 shadow-xl">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-brand-900">Apply Discount</h3>
+              <button
+                type="button"
+                onClick={() => setDiscountPanelOpen(false)}
+                className="rounded-md border border-slate-300 px-2 py-1 text-sm text-slate-700"
+              >
+                Close
+              </button>
+            </div>
+
+            <label className="mb-2 block text-sm text-slate-700" htmlFor="discountPercentInput">
+              Discount percentage
+            </label>
+            <input
+              id="discountPercentInput"
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              value={discountInput}
+              onChange={(event) => {
+                setDiscountInput(event.target.value);
+                if (discountError) setDiscountError("");
+              }}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
+              placeholder="Enter discount %"
+            />
+            {discountError ? <p className="mt-2 text-xs text-red-600">{discountError}</p> : null}
+
+            <div className="mt-4 rounded-lg bg-brand-50 p-3 text-sm">
+              <div className="flex justify-between">
+                <span>Subtotal:</span>
+                <span>{"\u20B9"}{previewTotals.subtotal.toFixed(2)}</span>
+              </div>
+              <div className="mt-1 flex justify-between">
+                <span>Discount ({previewTotals.discountPercent.toFixed(2)}%):</span>
+                <span>-{"\u20B9"}{previewTotals.discountAmount.toFixed(2)}</span>
+              </div>
+              <div className="mt-1 flex justify-between font-semibold">
+                <span>Final Payable:</span>
+                <span>{"\u20B9"}{previewTotals.grandTotal.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={applyDiscount}
+              className="mt-4 w-full rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white"
+            >
+              Apply Discount
+            </button>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }
