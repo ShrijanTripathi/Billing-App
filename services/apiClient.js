@@ -1,17 +1,14 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-
-if (!API_BASE_URL) {
-  throw new Error("Missing NEXT_PUBLIC_API_URL environment variable");
-}
+const API_BASE_URL = "";
 
 function buildUrl(path, query = {}) {
-  const url = new URL(path, API_BASE_URL);
+  const searchParams = new URLSearchParams();
   Object.entries(query).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
-      url.searchParams.set(key, String(value));
+      searchParams.set(key, String(value));
     }
   });
-  return url.toString();
+  const queryString = searchParams.toString();
+  return queryString ? `${path}?${queryString}` : path;
 }
 
 export async function apiRequest(path, options = {}) {
