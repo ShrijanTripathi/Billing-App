@@ -55,7 +55,7 @@ export default function Home() {
   const [discountInput, setDiscountInput] = useState("0");
   const [discountError, setDiscountError] = useState("");
   const [discountPanelOpen, setDiscountPanelOpen] = useState(false);
-  const [saleType, setSaleType] = useState("ONLINE");
+  const [saleType, setSaleType] = useState("OFFLINE");
   const [bill, setBill] = useState(null);
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
   const receiptRef = useRef(null);
@@ -169,7 +169,7 @@ export default function Home() {
     setDiscountInput("0");
     setDiscountError("");
     setDiscountPanelOpen(false);
-    setSaleType("ONLINE");
+    setSaleType("OFFLINE");
   };
 
   const openDiscountPanel = () => {
@@ -236,7 +236,7 @@ export default function Home() {
     };
     saveBill(snapshot);
     persistSale(snapshot);
-    setSaleType("ONLINE");
+    setSaleType("OFFLINE");
   };
 
   const printBill = () => {
