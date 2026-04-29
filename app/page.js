@@ -5,6 +5,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { fallbackMenuItems } from "../data/menu";
 import { apiRequest, API_BASE_URL } from "../services/apiClient";
+import ThermalReceipt from "../components/ThermalReceipt";
 import {
   calculateBillTotals,
   clampDiscountPercent,
@@ -13,8 +14,18 @@ import {
 
 const RESTAURANT = {
   name: "BALA JI FOOD ARTS",
-  address: "Booth number 265 & 266, Phase 7 Mohali",
-  phone: "+91-98765-43210",
+  addressLines: [
+    "Booth number 265 & 266, infront C",
+    "flower market Phase 7 Mohali",
+    "Punjab-160062",
+  ],
+  phone: "Phone 6280772610",
+  waitingTime: "Waiting Time 10 to 15 Minutes",
+  vegNote: "100 % Pure Veg",
+  openTiming: "24 HOURS OPEN",
+  fssai: "22121676000682",
+  onlineLine: "Order online at Zomato, Swiggy.",
+  footerText: "Thanks For Visit !!",
 };
 
 function formatDateTime(date) {
@@ -241,7 +252,7 @@ export default function Home() {
 
   const printBill = () => {
     if (!bill) return;
-    window.print();
+    requestAnimationFrame(() => window.print());
   };
 
   const downloadPdf = async () => {
@@ -253,14 +264,14 @@ export default function Home() {
         scale: 2,
       });
       const imageData = canvas.toDataURL("image/png");
+      const pageWidth = 80;
+      const imgHeight = (canvas.height * pageWidth) / canvas.width;
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
-        format: [80, 200],
+        format: [80, Math.max(120, imgHeight + 4)],
       });
 
-      const pageWidth = 80;
-      const imgHeight = (canvas.height * pageWidth) / canvas.width;
       pdf.addImage(imageData, "PNG", 0, 0, pageWidth, imgHeight);
       pdf.save(`balaji-bill-${bill.billNo}.pdf`);
     } finally {
@@ -269,7 +280,8 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen p-3 sm:p-5">
+    <>
+      <main className="app-shell min-h-screen p-3 sm:p-5">
       <div className="mx-auto w-full max-w-7xl">
         <header className="mb-4 rounded-xl border border-brand-100 bg-white p-4 shadow-sm">
           <h1 className="text-2xl font-bold text-brand-900 sm:text-3xl">
@@ -414,70 +426,15 @@ export default function Home() {
             </div>
 
             <div className="mt-5">
-              <h3 className="mb-2 text-lg font-semibold text-brand-900">Receipt Preview</h3>
-              <div ref={receiptRef} className="thermal-receipt p-3">
-                <div className="text-center text-sm font-bold">{RESTAURANT.name}</div>
-                <div className="text-center text-xs">{RESTAURANT.address}</div>
-                <div className="text-center text-xs">{RESTAURANT.phone}</div>
-                <div className="my-2 thermal-divider" />
-
-                {bill ? (
-                  <>
-                    <div className="flex justify-between text-xs">
-                      <span>Date: {bill.date}</span>
-                      <span>Time: {bill.time}</span>
-                    </div>
-                    <div className="mt-1 text-xs">Bill No: {bill.billNo}</div>
-                    <div className="text-xs">Token No: {bill.tokenNo}</div>
-                    <div className="my-2 thermal-divider" />
-
-                    <table className="w-full text-xs">
-                      <thead>
-                        <tr>
-                          <th className="w-1/2 text-left">Item</th>
-                          <th className="text-right">Qty</th>
-                          <th className="text-right">Price</th>
-                          <th className="text-right">Total</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {bill.items.map((item) => (
-                          <tr key={item._id || item.name}>
-                            <td className="py-1 pr-2">{item.name}</td>
-                            <td className="py-1 text-right">{item.qty}</td>
-                            <td className="py-1 text-right">{item.price}</td>
-                            <td className="py-1 text-right">{item.lineTotal}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-
-                    <div className="my-2 thermal-divider" />
-                    <div className="flex justify-between text-xs">
-                      <span>Total Qty:</span>
-                      <span>{bill.totalQty}</span>
-                    </div>
-                    <div className="mt-1 flex justify-between text-xs">
-                      <span>Subtotal:</span>
-                      <span>{"\u20B9"}{Number(bill.subtotal ?? bill.grandTotal ?? 0).toFixed(2)}</span>
-                    </div>
-                    <div className="mt-1 flex justify-between text-xs">
-                      <span>Discount ({Number(bill.discountPercent || 0).toFixed(2)}%):</span>
-                      <span>-{"\u20B9"}{Number(bill.discountAmount || 0).toFixed(2)}</span>
-                    </div>
-                    <div className="mt-1 flex justify-between text-sm font-bold">
-                      <span>Grand Total:</span>
-                      <span>{"\u20B9"}{Number(bill.grandTotal || 0).toFixed(2)}</span>
-                    </div>
-                    <div className="my-2 thermal-divider" />
-                    <div className="text-center text-[10px]">Thank you. Visit again.</div>
-                  </>
-                ) : (
-                  <div className="text-center text-xs text-gray-500">
-                    Generate a bill to view thermal receipt.
-                  </div>
-                )}
-              </div>
+              <h3 className="no-print mb-2 text-lg font-semibold text-brand-900">
+                Receipt Preview
+              </h3>
+              <ThermalReceipt
+                ref={receiptRef}
+                bill={bill}
+                restaurant={RESTAURANT}
+                className="thermal-screen-receipt"
+              />
             </div>
           </div>
         </section>
@@ -541,6 +498,10 @@ export default function Home() {
           </div>
         </div>
       ) : null}
-    </main>
+      </main>
+      <div className="thermal-print-area" aria-hidden="true">
+        <ThermalReceipt bill={bill} restaurant={RESTAURANT} className="thermal-print-receipt" />
+      </div>
+    </>
   );
 }

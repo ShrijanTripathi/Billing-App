@@ -13,36 +13,345 @@ body {
   color: #14532d;
 }
 
-.thermal-receipt {
-  width: 100%;
-  max-width: 360px;
-  margin: 0 auto;
-  background: #ffffff;
-  border: 1px dashed #14532d;
-  color: #111827;
-  font-family: "Courier New", Courier, monospace;
+.thermal-print-area {
+  display: none;
 }
 
-.thermal-divider {
-  border-top: 1px dashed #374151;
+.thermal-receipt-shell {
+  width: 100%;
+}
+
+.thermal-receipt {
+  box-sizing: border-box;
+  width: 76mm;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 10px 12px 12px;
+  background: #ffffff;
+  border: 1px solid #111111;
+  color: #000000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  line-height: 1.18;
+}
+
+.thermal-receipt * {
+  box-sizing: border-box;
+  color: #000000;
+}
+
+.receipt-header {
+  text-align: center;
+}
+
+.receipt-brand {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.receipt-header-line {
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.12;
+}
+
+.receipt-divider {
+  border-top: 1.6px solid #000000;
+  margin: 5px 0;
+}
+
+.receipt-empty {
+  padding: 8px 0;
+  text-align: center;
+}
+
+.receipt-customer {
+  border-bottom: 1.2px solid #000000;
+  font-size: 10.5px;
+  font-weight: 800;
+  margin-bottom: 3px;
+  padding-bottom: 2px;
+}
+
+.receipt-order-type {
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.1;
+  margin: 2px 0 4px;
+  text-align: center;
+}
+
+.receipt-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 6px;
+  row-gap: 2px;
+  font-size: 10px;
+}
+
+.receipt-info-row {
+  display: flex;
+  gap: 3px;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.receipt-info-row span {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.receipt-info-row strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.receipt-items {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  font-size: 9.7px;
+  line-height: 1.14;
+}
+
+.receipt-items th {
+  border-bottom: 1.4px solid #000000;
+  font-weight: 900;
+  padding: 2px 1px;
+}
+
+.receipt-items td {
+  font-weight: 700;
+  padding: 2px 1px;
+  vertical-align: top;
+}
+
+.receipt-col-no {
+  width: 8%;
+}
+
+.receipt-col-item {
+  width: 41%;
+}
+
+.receipt-col-qty {
+  width: 10%;
+}
+
+.receipt-col-price {
+  width: 18%;
+}
+
+.receipt-col-amount {
+  width: 23%;
+}
+
+.receipt-items th:nth-child(1),
+.receipt-items td:nth-child(1),
+.receipt-items th:nth-child(3),
+.receipt-items td:nth-child(3),
+.receipt-items th:nth-child(4),
+.receipt-items td:nth-child(4),
+.receipt-items th:nth-child(5),
+.receipt-items td:nth-child(5) {
+  text-align: right;
+}
+
+.receipt-items th:nth-child(2),
+.receipt-items td:nth-child(2) {
+  text-align: left;
+}
+
+.receipt-number {
+  padding-right: 2px;
+}
+
+.receipt-item-name {
+  overflow-wrap: anywhere;
+  padding-left: 2px;
+  word-break: break-word;
+}
+
+.receipt-item-name span,
+.receipt-item-name small {
+  display: block;
+}
+
+.receipt-item-name small {
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.receipt-numeric {
+  white-space: nowrap;
+}
+
+.receipt-summary {
+  font-size: 10.6px;
+  font-weight: 800;
+}
+
+.receipt-summary-row {
+  align-items: baseline;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  margin: 1px 0;
+}
+
+.receipt-summary-row strong {
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.receipt-grand-total {
+  border-top: 1.7px solid #000000;
+  font-size: 13px;
+  font-weight: 900;
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
+.receipt-footer {
+  font-size: 10.2px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.receipt-barcode-wrap {
+  margin: 3px 0 6px;
+}
+
+.receipt-barcode-caption {
+  font-size: 9px;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+
+.receipt-barcode {
+  display: inline-flex;
+  height: 27px;
+  justify-content: center;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.receipt-barcode-bar,
+.receipt-barcode-space {
+  display: block;
+  flex: 0 0 auto;
+  height: 100%;
+}
+
+.receipt-barcode-bar {
+  background: #000000;
+}
+
+.receipt-barcode-space {
+  background: #ffffff;
+}
+
+.receipt-footer-line {
+  font-size: 10px;
+}
+
+.receipt-thanks {
+  font-size: 10.5px;
+  font-weight: 900;
 }
 
 @media print {
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+
+  html,
   body {
-    background: #fff;
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    width: 80mm !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .app-shell {
+    display: none !important;
   }
 
   .no-print {
     display: none !important;
   }
 
-  .print-only {
+  .thermal-print-area {
+    background: #ffffff !important;
+    color: #000000 !important;
     display: block !important;
+    margin: 0 !important;
+    padding: 1.5mm 2mm 3mm !important;
+    width: 80mm !important;
   }
 
-  .thermal-receipt {
-    border: none;
-    width: 80mm;
-    max-width: none;
+  .thermal-print-area .thermal-receipt-shell {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 76mm !important;
+  }
+
+  .thermal-print-area .thermal-receipt {
+    background: #ffffff !important;
+    border: 0 !important;
+    color: #000000 !important;
+    font-size: 10.8px !important;
+    font-weight: 800 !important;
+    line-height: 1.14 !important;
+    margin: 0 auto !important;
+    max-width: 76mm !important;
+    padding: 0 !important;
+    width: 76mm !important;
+  }
+
+  .thermal-print-area .thermal-receipt,
+  .thermal-print-area .thermal-receipt * {
+    box-shadow: none !important;
+    color: #000000 !important;
+    text-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .thermal-print-area .receipt-divider,
+  .thermal-print-area .receipt-items th,
+  .thermal-print-area .receipt-customer,
+  .thermal-print-area .receipt-grand-total {
+    border-color: #000000 !important;
+  }
+
+  .thermal-print-area .receipt-barcode-bar {
+    background: #000000 !important;
+  }
+
+  .thermal-print-area .receipt-barcode-space {
+    background: #ffffff !important;
+  }
+
+  .thermal-print-area .receipt-brand {
+    font-size: 13.5px !important;
+  }
+
+  .thermal-print-area .receipt-items {
+    font-size: 9.6px !important;
   }
 }
