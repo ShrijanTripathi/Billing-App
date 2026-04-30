@@ -4,20 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "../../../components/admin/Modal";
 import { apiRequest, API_BASE_URL } from "../../../services/apiClient";
-
-const initialItemForm = {
-  id: "",
-  name: "",
-  price: "",
-  category: "",
-  available: true,
-  description: "",
-};
-
-const initialCategoryForm = {
-  id: "",
-  name: "",
-};
+import { fetchCategoriesV2, fetchMenuV2, isMenuItemAvailable } from "../../../services/menuV2Api";
 
 const SALES_RANGES = [
   { key: "today", label: "Today Sale" },
@@ -51,16 +38,8 @@ export default function AdminDashboardPage() {
   const [admin, setAdmin] = useState(null);
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [searchText, setSearchText] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [itemModalOpen, setItemModalOpen] = useState(false);
-  const [itemModalMode, setItemModalMode] = useState("create");
-  const [itemForm, setItemForm] = useState(initialItemForm);
-  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
-  const [categoryModalMode, setCategoryModalMode] = useState("create");
-  const [categoryForm, setCategoryForm] = useState(initialCategoryForm);
   const [salesOpen, setSalesOpen] = useState(false);
   const [salesRange, setSalesRange] = useState("today");
   const [salesLoading, setSalesLoading] = useState(false);
@@ -75,15 +54,15 @@ export default function AdminDashboardPage() {
   const [pendingDeleteFilter, setPendingDeleteFilter] = useState("");
   const [pendingDeleteCount, setPendingDeleteCount] = useState(0);
 
-  const loadData = async () => {
+  const loadDashboardData = async () => {
     setLoading(true);
     setError("");
 
     try {
       const [meData, menuData, categoryData] = await Promise.all([
         apiRequest("/api/auth/me"),
-        apiRequest("/api/menu", { query: { includeUnavailable: true } }),
-        apiRequest("/api/categories"),
+        fetchMenuV2(),
+        fetchCategoriesV2(),
       ]);
 
       setAdmin(meData.admin);
@@ -101,156 +80,20 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    loadData();
+    loadDashboardData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const dashboardStats = useMemo(() => {
     const total = items.length;
-    const available = items.filter((item) => item.available).length;
-    const unavailable = total - available;
+    const available = items.filter((item) => isMenuItemAvailable(item)).length;
     return {
       total,
       categories: categories.length,
       available,
-      unavailable,
+      needsAttention: items.filter((item) => !isMenuItemAvailable(item) || item.isActive === false).length,
     };
   }, [items, categories]);
-
-  const filteredItems = useMemo(() => {
-    const term = searchText.trim().toLowerCase();
-
-    return items.filter((item) => {
-      const matchesSearch =
-        term.length === 0 ||
-        item.name.toLowerCase().includes(term) ||
-        (item.description || "").toLowerCase().includes(term);
-
-      const matchesCategory =
-        categoryFilter === "all" || item.category === categoryFilter;
-
-      return matchesSearch && matchesCategory;
-    });
-  }, [items, searchText, categoryFilter]);
-
-  const openCreateItemModal = () => {
-    setItemModalMode("create");
-    setItemForm(initialItemForm);
-    setItemModalOpen(true);
-  };
-
-  const openEditItemModal = (item) => {
-    setItemModalMode("edit");
-    setItemForm({
-      id: item._id,
-      name: item.name,
-      price: String(item.price),
-      category: item.category,
-      available: Boolean(item.available),
-      description: item.description || "",
-    });
-    setItemModalOpen(true);
-  };
-
-  const submitItemForm = async (event) => {
-    event.preventDefault();
-
-    try {
-      const payload = {
-        name: itemForm.name,
-        price: Number(itemForm.price),
-        category: itemForm.category,
-        available: itemForm.available,
-        description: itemForm.description,
-      };
-
-      if (itemModalMode === "create") {
-        await apiRequest("/api/menu", {
-          method: "POST",
-          body: payload,
-        });
-      } else {
-        await apiRequest(`/api/menu/${itemForm.id}`, {
-          method: "PUT",
-          body: payload,
-        });
-      }
-
-      setItemModalOpen(false);
-      await loadData();
-    } catch (requestError) {
-      setError(requestError.message || "Unable to save menu item");
-    }
-  };
-
-  const deleteItem = async (id) => {
-    if (!window.confirm("Delete this item permanently?")) return;
-
-    try {
-      await apiRequest(`/api/menu/${id}`, { method: "DELETE" });
-      await loadData();
-    } catch (requestError) {
-      setError(requestError.message || "Unable to delete item");
-    }
-  };
-
-  const toggleAvailability = async (item) => {
-    try {
-      await apiRequest(`/api/menu/${item._id}`, {
-        method: "PUT",
-        body: { available: !item.available },
-      });
-      await loadData();
-    } catch (requestError) {
-      setError(requestError.message || "Unable to update availability");
-    }
-  };
-
-  const openCreateCategoryModal = () => {
-    setCategoryModalMode("create");
-    setCategoryForm(initialCategoryForm);
-    setCategoryModalOpen(true);
-  };
-
-  const openEditCategoryModal = (category) => {
-    setCategoryModalMode("edit");
-    setCategoryForm({ id: category._id, name: category.name });
-    setCategoryModalOpen(true);
-  };
-
-  const submitCategoryForm = async (event) => {
-    event.preventDefault();
-
-    try {
-      if (categoryModalMode === "create") {
-        await apiRequest("/api/categories", {
-          method: "POST",
-          body: { name: categoryForm.name },
-        });
-      } else {
-        await apiRequest(`/api/categories/${categoryForm.id}`, {
-          method: "PUT",
-          body: { name: categoryForm.name },
-        });
-      }
-
-      setCategoryModalOpen(false);
-      await loadData();
-    } catch (requestError) {
-      setError(requestError.message || "Unable to save category");
-    }
-  };
-
-  const deleteCategory = async (categoryId) => {
-    if (!window.confirm("Delete this category? This works only when no menu item uses it.")) return;
-
-    try {
-      await apiRequest(`/api/categories/${categoryId}`, { method: "DELETE" });
-      await loadData();
-    } catch (requestError) {
-      setError(requestError.message || "Unable to delete category");
-    }
-  };
 
   const loadSalesAnalytics = async (range = salesRange) => {
     setSalesLoading(true);
@@ -326,13 +169,10 @@ export default function AdminDashboardPage() {
     const headers = ["Date", "Items", "Quantity", "Total Amount"];
     const rows = sales.map((sale) => {
       const date = new Date(sale.billedAt).toLocaleString("en-IN");
-      const items = (sale.items || [])
-        .map((item) => `${item.name} x${item.qty}`)
-        .join(" | ");
+      const itemNames = (sale.items || []).map((item) => `${item.name} x${item.qty}`).join(" | ");
       const quantity = Number(sale.totalQty || 0);
       const total = Number(sale.grandTotal || 0).toFixed(2);
-
-      const escapedItems = `"${String(items).replace(/"/g, '""')}"`;
+      const escapedItems = `"${String(itemNames).replace(/"/g, '""')}"`;
       return `${date},${escapedItems},${quantity},${total}`;
     });
 
@@ -433,6 +273,20 @@ export default function AdminDashboardPage() {
           <h1 className="text-2xl font-semibold text-slate-900">Restaurant Admin Dashboard</h1>
           <p className="text-sm text-slate-600">Authorized user: {admin?.email}</p>
         </div>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href="/admin/menu"
+            className="rounded-lg border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700"
+          >
+            Manage Menu
+          </a>
+          <a
+            href="/admin/menu/import"
+            className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white"
+          >
+            Bulk Import
+          </a>
+        </div>
       </header>
 
       {error ? (
@@ -453,8 +307,8 @@ export default function AdminDashboardPage() {
           <p className="text-2xl font-semibold text-emerald-900">{dashboardStats.available}</p>
         </div>
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <p className="text-sm text-amber-700">Unavailable items</p>
-          <p className="text-2xl font-semibold text-amber-900">{dashboardStats.unavailable}</p>
+          <p className="text-sm text-amber-700">Unavailable / inactive</p>
+          <p className="text-2xl font-semibold text-amber-900">{dashboardStats.needsAttention}</p>
         </div>
       </section>
 
@@ -551,10 +405,7 @@ export default function AdminDashboardPage() {
                     </thead>
                     <tbody>
                       {(salesAnalytics.items || []).map((item) => (
-                        <tr
-                          key={item.itemId || `${item.name}-${item.category}`}
-                          className="border-b border-slate-100"
-                        >
+                        <tr key={item.itemId || `${item.name}-${item.category}`} className="border-b border-slate-100">
                           <td className="py-2 font-medium text-slate-900">{item.name}</td>
                           <td className="py-2 text-slate-600">{item.category}</td>
                           <td className="py-2 text-slate-600">{item.quantitySold}</td>
@@ -631,238 +482,6 @@ export default function AdminDashboardPage() {
           </div>
         ) : null}
       </section>
-
-      <section className="mt-6 rounded-xl border border-slate-200 p-4">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-lg font-semibold text-slate-900">Menu Management</h2>
-          <button
-            type="button"
-            onClick={openCreateItemModal}
-            className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white"
-          >
-            Add Item
-          </button>
-        </div>
-
-        <div className="mb-3 grid gap-2 md:grid-cols-2">
-          <input
-            value={searchText}
-            onChange={(event) => setSearchText(event.target.value)}
-            placeholder="Search by name or description"
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-          />
-
-          <select
-            value={categoryFilter}
-            onChange={(event) => setCategoryFilter(event.target.value)}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-          >
-            <option value="all">All Categories</option>
-            {categories.map((category) => (
-              <option key={category._id} value={category.name}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 text-slate-600">
-                <th className="py-2">Item</th>
-                <th className="py-2">Category</th>
-                <th className="py-2">Price</th>
-                <th className="py-2">Status</th>
-                <th className="py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredItems.map((item) => (
-                <tr key={item._id} className="border-b border-slate-100 align-top">
-                  <td className="py-3 pr-2">
-                    <p className="font-medium text-slate-900">{item.name}</p>
-                    <p className="text-xs text-slate-500">{item.description || "No description"}</p>
-                  </td>
-                  <td className="py-3">{item.category}</td>
-                  <td className="py-3">{formatCurrency(item.price)}</td>
-                  <td className="py-3">
-                    <span
-                      className={`rounded-full px-2 py-1 text-xs font-medium ${
-                        item.available
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-amber-100 text-amber-700"
-                      }`}
-                    >
-                      {item.available ? "Available" : "Unavailable"}
-                    </span>
-                  </td>
-                  <td className="py-3">
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => openEditItemModal(item)}
-                        className="rounded border border-slate-300 px-2 py-1 text-xs"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => toggleAvailability(item)}
-                        className="rounded border border-emerald-300 px-2 py-1 text-xs text-emerald-700"
-                      >
-                        Toggle
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => deleteItem(item._id)}
-                        className="rounded border border-red-300 px-2 py-1 text-xs text-red-700"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {filteredItems.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="py-6 text-center text-slate-500">
-                    No menu items found.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="mt-6 rounded-xl border border-slate-200 p-4">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-lg font-semibold text-slate-900">Category Management</h2>
-          <button
-            type="button"
-            onClick={openCreateCategoryModal}
-            className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white"
-          >
-            Add Category
-          </button>
-        </div>
-
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {categories.map((category) => (
-            <div key={category._id} className="rounded-lg border border-slate-200 p-3">
-              <p className="font-medium text-slate-900">{category.name}</p>
-              <div className="mt-2 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => openEditCategoryModal(category)}
-                  className="rounded border border-slate-300 px-2 py-1 text-xs"
-                >
-                  Rename
-                </button>
-                <button
-                  type="button"
-                  onClick={() => deleteCategory(category._id)}
-                  className="rounded border border-red-300 px-2 py-1 text-xs text-red-700"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
-          {categories.length === 0 ? (
-            <p className="text-sm text-slate-500">No categories available.</p>
-          ) : null}
-        </div>
-      </section>
-
-      <Modal
-        open={itemModalOpen}
-        onClose={() => setItemModalOpen(false)}
-        title={itemModalMode === "create" ? "Add Menu Item" : "Edit Menu Item"}
-      >
-        <form className="space-y-3" onSubmit={submitItemForm}>
-          <input
-            value={itemForm.name}
-            onChange={(event) => setItemForm((prev) => ({ ...prev, name: event.target.value }))}
-            placeholder="Item name"
-            required
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-          />
-
-          <input
-            value={itemForm.price}
-            onChange={(event) => setItemForm((prev) => ({ ...prev, price: event.target.value }))}
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="Price"
-            required
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-          />
-
-          <select
-            value={itemForm.category}
-            onChange={(event) => setItemForm((prev) => ({ ...prev, category: event.target.value }))}
-            required
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-          >
-            <option value="">Select category</option>
-            {categories.map((category) => (
-              <option key={category._id} value={category.name}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-
-          <textarea
-            value={itemForm.description}
-            onChange={(event) => setItemForm((prev) => ({ ...prev, description: event.target.value }))}
-            placeholder="Description (optional)"
-            rows={3}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-          />
-
-          <label className="flex items-center gap-2 text-sm text-slate-700">
-            <input
-              checked={itemForm.available}
-              onChange={(event) => setItemForm((prev) => ({ ...prev, available: event.target.checked }))}
-              type="checkbox"
-            />
-            Available for billing
-          </label>
-
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white"
-          >
-            {itemModalMode === "create" ? "Create Item" : "Save Changes"}
-          </button>
-        </form>
-      </Modal>
-
-      <Modal
-        open={categoryModalOpen}
-        onClose={() => setCategoryModalOpen(false)}
-        title={categoryModalMode === "create" ? "Add Category" : "Rename Category"}
-      >
-        <form className="space-y-3" onSubmit={submitCategoryForm}>
-          <input
-            value={categoryForm.name}
-            onChange={(event) => setCategoryForm((prev) => ({ ...prev, name: event.target.value }))}
-            placeholder="Category name"
-            required
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-          />
-
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white"
-          >
-            {categoryModalMode === "create" ? "Create Category" : "Save Category"}
-          </button>
-        </form>
-      </Modal>
 
       <Modal
         open={bulkDeleteModalOpen}

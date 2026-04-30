@@ -1,9 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { apiRequest } from "../../services/apiClient";
 
-const links = [{ href: "/admin", label: "Dashboard" }];
+const links = [
+  { href: "/admin", label: "Dashboard" },
+  { href: "/admin/menu", label: "Menu" },
+  { href: "/admin/menu/import", label: "Bulk Import" },
+];
 
 export default function AdminSidebar() {
   const pathname = usePathname();
@@ -26,9 +31,9 @@ export default function AdminSidebar() {
 
       <nav className="space-y-2">
         {links.map((link) => {
-          const active = pathname === link.href;
+          const active = link.href === "/admin" ? pathname === link.href : pathname.startsWith(link.href);
           return (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className={`block rounded-lg px-3 py-2 text-sm font-medium transition ${
@@ -38,7 +43,7 @@ export default function AdminSidebar() {
               }`}
             >
               {link.label}
-            </a>
+            </Link>
           );
         })}
       </nav>

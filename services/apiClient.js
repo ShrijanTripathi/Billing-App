@@ -12,15 +12,21 @@ function buildUrl(path, query = {}) {
 }
 
 export async function apiRequest(path, options = {}) {
+  const hasFormBody = typeof FormData !== "undefined" && options.body instanceof FormData;
+  const body = options.body ? (hasFormBody ? options.body : JSON.stringify(options.body)) : undefined;
+  const headers = hasFormBody
+    ? options.headers || {}
+    : {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      };
+
   let response;
   try {
     response = await fetch(buildUrl(path, options.query), {
       method: options.method || "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...(options.headers || {}),
-      },
-      body: options.body ? JSON.stringify(options.body) : undefined,
+      headers,
+      body,
       credentials: "include",
       cache: "no-store",
     });

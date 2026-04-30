@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { fallbackMenuItems } from "../data/menu";
 import { apiRequest, API_BASE_URL } from "../services/apiClient";
 import ThermalReceipt from "../components/ThermalReceipt";
+import DynamicMenuPanel from "../components/pos/DynamicMenuPanel";
 import {
   calculateBillTotals,
   clampDiscountPercent,
@@ -46,21 +46,7 @@ function randomNumber(length) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function normalizeMenu(items) {
-  return items
-    .filter((item) => item.available !== false)
-    .map((item) => ({
-      _id: item._id || item.name,
-      name: item.name,
-      price: Number(item.price),
-      category: item.category || "Uncategorized",
-    }));
-}
-
 export default function Home() {
-  const [menuItems, setMenuItems] = useState(normalizeMenu(fallbackMenuItems));
-  const [isMenuLoading, setIsMenuLoading] = useState(true);
-  const [menuError, setMenuError] = useState("");
   const [cart, setCart] = useState([]);
   const [discountPercent, setDiscountPercent] = useState(0);
   const [discountInput, setDiscountInput] = useState("0");
@@ -77,33 +63,6 @@ export default function Home() {
     () => calculateBillTotals(cart, discountPreviewPercent),
     [cart, discountPreviewPercent]
   );
-
-  useEffect(() => {
-    const loadMenu = async () => {
-      setIsMenuLoading(true);
-      setMenuError("");
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/menu`, {
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to load live menu");
-        }
-
-        const data = await response.json();
-        if (Array.isArray(data.items) && data.items.length > 0) {
-          setMenuItems(normalizeMenu(data.items));
-        }
-      } catch {
-        setMenuError("Live menu unavailable, using offline fallback menu.");
-      } finally {
-        setIsMenuLoading(false);
-      }
-    };
-
-    loadMenu();
-  }, []);
 
   useEffect(() => {
     try {
@@ -150,12 +109,12 @@ export default function Home() {
     }
   };
 
-  const addItem = (menuItem) => {
+  const addItem = (cartItem) => {
     setCart((prev) => {
-      const found = prev.find((item) => item._id === menuItem._id);
-      if (!found) return [...prev, { ...menuItem, qty: 1 }];
+      const found = prev.find((item) => item._id === cartItem._id);
+      if (!found) return [...prev, { ...cartItem, qty: 1 }];
       return prev.map((item) =>
-        item._id === menuItem._id ? { ...item, qty: item.qty + 1 } : item
+        item._id === cartItem._id ? { ...item, qty: item.qty + 1 } : item
       );
     });
   };
@@ -232,7 +191,7 @@ export default function Home() {
       time,
       billedAt: now.toISOString(),
       items: cart.map((item) => ({
-        itemId: item._id,
+        itemId: item.itemId || item._id,
         name: item.name,
         category: item.category,
         price: item.price,
@@ -289,28 +248,10 @@ export default function Home() {
           </h1>
           <p className="text-sm text-brand-700">Simple POS for billing and thermal receipt printing</p>
           <p className="mt-1 text-xs text-slate-500">Admin: /admin | API: {API_BASE_URL}</p>
-          {menuError ? <p className="mt-1 text-xs text-amber-700">{menuError}</p> : null}
         </header>
 
-        <section className="grid gap-4 lg:grid-cols-2">
-          <div className="no-print rounded-xl border border-brand-100 bg-white p-4 shadow-sm">
-            <h2 className="mb-3 text-xl font-semibold text-brand-900">Menu</h2>
-            {isMenuLoading ? <p className="mb-2 text-sm text-slate-500">Loading live menu...</p> : null}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {menuItems.map((item) => (
-                <button
-                  key={item._id}
-                  type="button"
-                  onClick={() => addItem(item)}
-                  className="rounded-lg border border-brand-100 bg-brand-50 p-3 text-left transition hover:border-brand-500 hover:bg-brand-100"
-                >
-                  <div className="font-medium text-brand-900">{item.name}</div>
-                  <div className="text-xs text-slate-500">{item.category}</div>
-                  <div className="text-sm text-brand-700">{"\u20B9"}{item.price}</div>
-                </button>
-              ))}
-            </div>
-          </div>
+        <section className="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(380px,0.75fr)]">
+          <DynamicMenuPanel onAddItem={addItem} />
 
           <div className="rounded-xl border border-brand-100 bg-white p-4 shadow-sm">
             <h2 className="mb-3 text-xl font-semibold text-brand-900">Cart</h2>
