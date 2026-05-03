@@ -6,6 +6,7 @@ const WIDTH_CLASSES = {
   xl: "max-w-5xl",
 };
 
+
 export default function Modal({ title, open, onClose, children, size = "md" }) {
   if (!open) return null;
 
