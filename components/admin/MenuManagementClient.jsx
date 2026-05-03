@@ -22,7 +22,6 @@ import {
   updateMenuItemV2,
 } from "../../services/menuV2Api";
 
-
 const emptyItemForm = {
   id: "",
   name: "",
@@ -75,7 +74,10 @@ function variantRowsFromItem(item) {
     ? item.variants.map((variant) => ({
         label: variant.label || "",
         code: VARIANT_CODES.includes(variant.code) ? variant.code : "custom",
-        price: variant.price === null || variant.price === undefined ? "" : String(variant.price),
+        price:
+          variant.price === null || variant.price === undefined
+            ? ""
+            : String(variant.price),
       }))
     : [];
 }
@@ -84,7 +86,10 @@ function addonRowsFromItem(item) {
   return Array.isArray(item.addons)
     ? item.addons.map((addon) => ({
         name: addon.name || "",
-        price: addon.price === null || addon.price === undefined ? "" : String(addon.price),
+        price:
+          addon.price === null || addon.price === undefined
+            ? ""
+            : String(addon.price),
       }))
     : [];
 }
@@ -95,11 +100,15 @@ function formFromItem(item) {
   return {
     id: getItemId(item),
     name: item.name || "",
-    categoryId: item.categoryId || item.category?.id || item.category?._id || "",
+    categoryId:
+      item.categoryId || item.category?.id || item.category?._id || "",
     categoryName: getCategoryName(item),
     itemType: ITEM_TYPES.includes(item.itemType) ? item.itemType : "regular",
-    pricingType: PRICING_TYPES.includes(item.pricingType) ? item.pricingType : "single",
-    basePrice: basePrice === null || basePrice === undefined ? "" : String(basePrice),
+    pricingType: PRICING_TYPES.includes(item.pricingType)
+      ? item.pricingType
+      : "single",
+    basePrice:
+      basePrice === null || basePrice === undefined ? "" : String(basePrice),
     variants: variantRowsFromItem(item),
     addons: addonRowsFromItem(item),
     description: item.description || "",
@@ -107,7 +116,10 @@ function formFromItem(item) {
     isRecommended: Boolean(item.isRecommended),
     isAvailable: Boolean(item.isAvailable ?? item.available ?? true),
     isActive: Boolean(item.isActive ?? true),
-    sortOrder: item.sortOrder === null || item.sortOrder === undefined ? "0" : String(item.sortOrder),
+    sortOrder:
+      item.sortOrder === null || item.sortOrder === undefined
+        ? "0"
+        : String(item.sortOrder),
   };
 }
 
@@ -126,7 +138,11 @@ function StatusPill({ item }) {
         ? "bg-amber-100 text-amber-700"
         : "bg-slate-200 text-slate-700";
 
-  return <span className={`rounded-full px-2 py-1 text-xs font-medium ${classes}`}>{label}</span>;
+  return (
+    <span className={`rounded-full px-2 py-1 text-xs font-medium ${classes}`}>
+      {label}
+    </span>
+  );
 }
 
 function safeArray(value) {
@@ -218,7 +234,9 @@ export default function MenuManagementClient() {
   }, [items, statusFilter]);
 
   const openCreateItemModal = () => {
-    const firstActiveCategory = categories.find((category) => category.isActive !== false);
+    const firstActiveCategory = categories.find(
+      (category) => category.isActive !== false,
+    );
     setItemModalMode("create");
     setItemForm({
       ...emptyItemForm,
@@ -248,7 +266,10 @@ export default function MenuManagementClient() {
     setCategoryForm({
       id: category.id,
       name: category.name || "",
-      sortOrder: category.sortOrder === null || category.sortOrder === undefined ? "0" : String(category.sortOrder),
+      sortOrder:
+        category.sortOrder === null || category.sortOrder === undefined
+          ? "0"
+          : String(category.sortOrder),
       isActive: Boolean(category.isActive ?? true),
     });
     setFormError("");
@@ -258,31 +279,44 @@ export default function MenuManagementClient() {
   const validateItemForm = () => {
     if (!itemForm.name.trim()) return "Item name is required.";
     if (!itemForm.categoryId) return "Select a category.";
-    if (!ITEM_TYPES.includes(itemForm.itemType)) return "Select a valid item type.";
-    if (!PRICING_TYPES.includes(itemForm.pricingType)) return "Select a valid pricing type.";
+    if (!ITEM_TYPES.includes(itemForm.itemType))
+      return "Select a valid item type.";
+    if (!PRICING_TYPES.includes(itemForm.pricingType))
+      return "Select a valid pricing type.";
 
-    const hasBasePrice = itemForm.basePrice !== "" && Number.isFinite(Number(itemForm.basePrice));
+    const hasBasePrice =
+      itemForm.basePrice !== "" && Number.isFinite(Number(itemForm.basePrice));
     const hasVariants = safeArray(itemForm.variants).some(
-      (variant) => variant.label.trim() && VARIANT_CODES.includes(variant.code) && Number.isFinite(Number(variant.price))
+      (variant) =>
+        variant.label.trim() &&
+        VARIANT_CODES.includes(variant.code) &&
+        Number.isFinite(Number(variant.price)),
     );
 
     if (itemForm.pricingType === "single" && !hasBasePrice) {
       return "Single pricing requires a base price.";
     }
 
-    if (["half-full", "size-based"].includes(itemForm.pricingType) && !hasVariants) {
+    if (
+      ["half-full", "size-based"].includes(itemForm.pricingType) &&
+      !hasVariants
+    ) {
       return "This pricing type requires at least one valid variant.";
     }
 
     const invalidVariant = safeArray(itemForm.variants).find(
       (variant) =>
         (variant.label.trim() || variant.price !== "") &&
-        (!VARIANT_CODES.includes(variant.code) || !Number.isFinite(Number(variant.price)))
+        (!VARIANT_CODES.includes(variant.code) ||
+          !Number.isFinite(Number(variant.price))),
     );
-    if (invalidVariant) return "Each variant needs an allowed code and a valid price.";
+    if (invalidVariant)
+      return "Each variant needs an allowed code and a valid price.";
 
     const invalidAddon = safeArray(itemForm.addons).find(
-      (addon) => (addon.name.trim() || addon.price !== "") && (!addon.name.trim() || !Number.isFinite(Number(addon.price)))
+      (addon) =>
+        (addon.name.trim() || addon.price !== "") &&
+        (!addon.name.trim() || !Number.isFinite(Number(addon.price))),
     );
     if (invalidAddon) return "Each addon needs a name and a valid price.";
 
@@ -375,8 +409,8 @@ export default function MenuManagementClient() {
                 [flag]: nextValue,
                 ...(flag === "isAvailable" ? { available: nextValue } : {}),
               }
-            : menuItem
-        )
+            : menuItem,
+        ),
       );
     } catch (requestError) {
       setError(requestError.message || "Unable to update menu item.");
@@ -402,7 +436,12 @@ export default function MenuManagementClient() {
   };
 
   const deleteCategory = async (category) => {
-    if (!window.confirm(`Delete "${category.name}"? This works only when no menu item uses it.`)) return;
+    if (
+      !window.confirm(
+        `Delete "${category.name}"? This works only when no menu item uses it.`,
+      )
+    )
+      return;
 
     setError("");
     try {
@@ -417,22 +456,28 @@ export default function MenuManagementClient() {
     setItemForm((prev) => ({
       ...prev,
       variants: prev.variants.map((variant, variantIndex) =>
-        variantIndex === index ? { ...variant, [key]: value } : variant
+        variantIndex === index ? { ...variant, [key]: value } : variant,
       ),
     }));
   };
 
-  const updateAddon = (index, key, value) => {
-    setItemForm((prev) => ({
-      ...prev,
-      addons: prev.addons.map((addon, addonIndex) => (addonIndex === index ? { ...addon, [key]: value } : addon)),
-    }));
-  };
+const updateAddon = (addonId, key, value) => {
+  setItemForm((prev) => ({
+    ...prev,
+    addons: prev.addons.map((addon) =>
+      addon.id === addonId
+        ? { ...addon, [key]: value }
+        : addon,
+    ),
+  }));
+};
 
   const applyVariantPreset = () => {
     setItemForm((prev) => ({
       ...prev,
-      variants: VARIANT_PRESETS[prev.pricingType] || [{ label: "", code: "custom", price: "" }],
+      variants: VARIANT_PRESETS[prev.pricingType] || [
+        { label: "", code: "custom", price: "" },
+      ],
     }));
   };
 
@@ -440,8 +485,12 @@ export default function MenuManagementClient() {
     <>
       <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Menu Management</h1>
-          <p className="text-sm text-slate-600">Backend-driven V2 menu, categories, variants, and addons.</p>
+          <h1 className="text-2xl font-semibold text-slate-900">
+            Menu Management
+          </h1>
+          <p className="text-sm text-slate-600">
+            Backend-driven V2 menu, categories, variants, and addons.
+          </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <a
@@ -468,25 +517,35 @@ export default function MenuManagementClient() {
       </header>
 
       {error ? (
-        <div className="mb-5 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>
+        <div className="mb-5 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
       ) : null}
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
           <p className="text-sm text-slate-600">Visible items</p>
-          <p className="text-2xl font-semibold text-slate-900">{dashboardStats.total}</p>
+          <p className="text-2xl font-semibold text-slate-900">
+            {dashboardStats.total}
+          </p>
         </div>
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
           <p className="text-sm text-emerald-700">Available</p>
-          <p className="text-2xl font-semibold text-emerald-900">{dashboardStats.available}</p>
+          <p className="text-2xl font-semibold text-emerald-900">
+            {dashboardStats.available}
+          </p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
           <p className="text-sm text-slate-600">Categories</p>
-          <p className="text-2xl font-semibold text-slate-900">{categories.length}</p>
+          <p className="text-2xl font-semibold text-slate-900">
+            {categories.length}
+          </p>
         </div>
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
           <p className="text-sm text-amber-700">Recommended</p>
-          <p className="text-2xl font-semibold text-amber-900">{dashboardStats.recommended}</p>
+          <p className="text-2xl font-semibold text-amber-900">
+            {dashboardStats.recommended}
+          </p>
         </div>
       </section>
 
@@ -524,7 +583,9 @@ export default function MenuManagementClient() {
           </select>
         </div>
 
-        {loading ? <p className="text-sm text-slate-500">Loading V2 menu...</p> : null}
+        {loading ? (
+          <p className="text-sm text-slate-500">Loading V2 menu...</p>
+        ) : null}
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] text-left text-sm">
@@ -540,28 +601,46 @@ export default function MenuManagementClient() {
             </thead>
             <tbody>
               {filteredItems.map((item) => (
-                <tr key={getItemId(item)} className="border-b border-slate-100 align-top">
+                <tr
+                  key={getItemId(item)}
+                  className="border-b border-slate-100 align-top"
+                >
                   <td className="py-3 pr-3">
                     <p className="font-medium text-slate-900">{item.name}</p>
-                    <p className="text-xs text-slate-500">{item.description || "No description"}</p>
+                    <p className="text-xs text-slate-500">
+                      {item.description || "No description"}
+                    </p>
                     {safeArray(item.tags).length ? (
-                      <p className="mt-1 text-xs text-slate-500">Tags: {item.tags.join(", ")}</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Tags: {item.tags.join(", ")}
+                      </p>
                     ) : null}
                   </td>
-                  <td className="py-3 text-slate-700">{getCategoryName(item)}</td>
+                  <td className="py-3 text-slate-700">
+                    {getCategoryName(item)}
+                  </td>
                   <td className="py-3 text-slate-700">
                     <p>{item.itemType || "regular"}</p>
-                    <p className="text-xs text-slate-500">{item.pricingType || "single"}</p>
+                    <p className="text-xs text-slate-500">
+                      {item.pricingType || "single"}
+                    </p>
                   </td>
                   <td className="py-3 text-slate-700">
                     <p>{formatMoney(getDisplayPrice(item))}</p>
                     {safeArray(item.variants).length ? (
                       <p className="mt-1 max-w-xs text-xs text-slate-500">
-                        {item.variants.map((variant) => `${variant.label} ${formatMoney(variant.price)}`).join(" | ")}
+                        {item.variants
+                          .map(
+                            (variant) =>
+                              `${variant.label} ${formatMoney(variant.price)}`,
+                          )
+                          .join(" | ")}
                       </p>
                     ) : null}
                     {safeArray(item.addons).length ? (
-                      <p className="mt-1 text-xs text-slate-500">{item.addons.length} addon(s)</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {item.addons.length} addon(s)
+                      </p>
                     ) : null}
                   </td>
                   <td className="py-3">
@@ -627,16 +706,25 @@ export default function MenuManagementClient() {
 
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {categories.map((category) => (
-            <article key={category.id} className="rounded-lg border border-slate-200 p-3">
+            <article
+              key={category.id}
+              className="rounded-lg border border-slate-200 p-3"
+            >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-medium text-slate-900">{category.name}</p>
-                  <p className="text-xs text-slate-500">Slug: {category.slug || "-"}</p>
-                  <p className="text-xs text-slate-500">Sort: {Number(category.sortOrder || 0)}</p>
+                  <p className="text-xs text-slate-500">
+                    Slug: {category.slug || "-"}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Sort: {Number(category.sortOrder || 0)}
+                  </p>
                 </div>
                 <span
                   className={`rounded-full px-2 py-1 text-xs font-medium ${
-                    category.isActive === false ? "bg-slate-200 text-slate-700" : "bg-emerald-100 text-emerald-700"
+                    category.isActive === false
+                      ? "bg-slate-200 text-slate-700"
+                      : "bg-emerald-100 text-emerald-700"
                   }`}
                 >
                   {category.isActive === false ? "Inactive" : "Active"}
@@ -659,7 +747,11 @@ export default function MenuManagementClient() {
                       isActive: category.isActive === false,
                     })
                       .then(() => loadCategories())
-                      .catch((requestError) => setError(requestError.message || "Unable to update category."))
+                      .catch((requestError) =>
+                        setError(
+                          requestError.message || "Unable to update category.",
+                        ),
+                      )
                   }
                   className="rounded border border-emerald-300 px-2 py-1 text-xs text-emerald-700"
                 >
@@ -684,12 +776,16 @@ export default function MenuManagementClient() {
       <Modal
         open={itemModalOpen}
         onClose={() => setItemModalOpen(false)}
-        title={itemModalMode === "create" ? "Create Menu Item" : "Edit Menu Item"}
+        title={
+          itemModalMode === "create" ? "Create Menu Item" : "Edit Menu Item"
+        }
         size="xl"
       >
         <form className="space-y-4" onSubmit={submitItemForm}>
           {formError ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {formError}
+            </div>
           ) : null}
 
           <div className="grid gap-3 md:grid-cols-2">
@@ -697,7 +793,9 @@ export default function MenuManagementClient() {
               Name
               <input
                 value={itemForm.name}
-                onChange={(event) => setItemForm((prev) => ({ ...prev, name: event.target.value }))}
+                onChange={(event) =>
+                  setItemForm((prev) => ({ ...prev, name: event.target.value }))
+                }
                 required
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
               />
@@ -707,7 +805,9 @@ export default function MenuManagementClient() {
               <select
                 value={itemForm.categoryId}
                 onChange={(event) => {
-                  const selectedCategory = categories.find((category) => category.id === event.target.value);
+                  const selectedCategory = categories.find(
+                    (category) => category.id === event.target.value,
+                  );
                   setItemForm((prev) => ({
                     ...prev,
                     categoryId: event.target.value,
@@ -729,7 +829,12 @@ export default function MenuManagementClient() {
               Item Type
               <select
                 value={itemForm.itemType}
-                onChange={(event) => setItemForm((prev) => ({ ...prev, itemType: event.target.value }))}
+                onChange={(event) =>
+                  setItemForm((prev) => ({
+                    ...prev,
+                    itemType: event.target.value,
+                  }))
+                }
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
               >
                 {ITEM_TYPES.map((type) => (
@@ -743,7 +848,12 @@ export default function MenuManagementClient() {
               Pricing Type
               <select
                 value={itemForm.pricingType}
-                onChange={(event) => setItemForm((prev) => ({ ...prev, pricingType: event.target.value }))}
+                onChange={(event) =>
+                  setItemForm((prev) => ({
+                    ...prev,
+                    pricingType: event.target.value,
+                  }))
+                }
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
               >
                 {PRICING_TYPES.map((type) => (
@@ -757,7 +867,12 @@ export default function MenuManagementClient() {
               Base Price
               <input
                 value={itemForm.basePrice}
-                onChange={(event) => setItemForm((prev) => ({ ...prev, basePrice: event.target.value }))}
+                onChange={(event) =>
+                  setItemForm((prev) => ({
+                    ...prev,
+                    basePrice: event.target.value,
+                  }))
+                }
                 type="number"
                 step="0.01"
                 min="0"
@@ -768,7 +883,12 @@ export default function MenuManagementClient() {
               Sort Order
               <input
                 value={itemForm.sortOrder}
-                onChange={(event) => setItemForm((prev) => ({ ...prev, sortOrder: event.target.value }))}
+                onChange={(event) =>
+                  setItemForm((prev) => ({
+                    ...prev,
+                    sortOrder: event.target.value,
+                  }))
+                }
                 type="number"
                 step="1"
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
@@ -780,7 +900,12 @@ export default function MenuManagementClient() {
             Description
             <textarea
               value={itemForm.description}
-              onChange={(event) => setItemForm((prev) => ({ ...prev, description: event.target.value }))}
+              onChange={(event) =>
+                setItemForm((prev) => ({
+                  ...prev,
+                  description: event.target.value,
+                }))
+              }
               rows={3}
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
             />
@@ -790,7 +915,9 @@ export default function MenuManagementClient() {
             Tags
             <input
               value={itemForm.tags}
-              onChange={(event) => setItemForm((prev) => ({ ...prev, tags: event.target.value }))}
+              onChange={(event) =>
+                setItemForm((prev) => ({ ...prev, tags: event.target.value }))
+              }
               placeholder="comma, separated, tags"
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
             />
@@ -802,10 +929,18 @@ export default function MenuManagementClient() {
               ["isAvailable", "Available"],
               ["isActive", "Active"],
             ].map(([key, label]) => (
-              <label key={key} className="flex items-center gap-2 rounded-lg border border-slate-200 p-3 text-sm text-slate-700">
+              <label
+                key={key}
+                className="flex items-center gap-2 rounded-lg border border-slate-200 p-3 text-sm text-slate-700"
+              >
                 <input
                   checked={Boolean(itemForm[key])}
-                  onChange={(event) => setItemForm((prev) => ({ ...prev, [key]: event.target.checked }))}
+                  onChange={(event) =>
+                    setItemForm((prev) => ({
+                      ...prev,
+                      [key]: event.target.checked,
+                    }))
+                  }
                   type="checkbox"
                 />
                 {label}
@@ -829,7 +964,10 @@ export default function MenuManagementClient() {
                   onClick={() =>
                     setItemForm((prev) => ({
                       ...prev,
-                      variants: [...prev.variants, { label: "", code: "custom", price: "" }],
+                      variants: [
+                        ...prev.variants,
+                        { label: "", code: "custom", price: "" },
+                      ],
                     }))
                   }
                   className="rounded border border-emerald-300 px-3 py-2 text-xs font-medium text-emerald-700"
@@ -841,16 +979,23 @@ export default function MenuManagementClient() {
 
             <div className="space-y-2">
               {itemForm.variants.map((variant, index) => (
-                <div key={`${variant.code}-${index}`} className="grid gap-2 md:grid-cols-[1fr_170px_160px_auto]">
+                <div
+                  key={`${variant.code}-${index}`}
+                  className="grid gap-2 md:grid-cols-[1fr_170px_160px_auto]"
+                >
                   <input
                     value={variant.label}
-                    onChange={(event) => updateVariant(index, "label", event.target.value)}
+                    onChange={(event) =>
+                      updateVariant(index, "label", event.target.value)
+                    }
                     placeholder="Label"
                     className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
                   />
                   <select
                     value={variant.code}
-                    onChange={(event) => updateVariant(index, "code", event.target.value)}
+                    onChange={(event) =>
+                      updateVariant(index, "code", event.target.value)
+                    }
                     className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
                   >
                     {VARIANT_CODES.map((code) => (
@@ -861,7 +1006,9 @@ export default function MenuManagementClient() {
                   </select>
                   <input
                     value={variant.price}
-                    onChange={(event) => updateVariant(index, "price", event.target.value)}
+                    onChange={(event) =>
+                      updateVariant(index, "price", event.target.value)
+                    }
                     type="number"
                     step="0.01"
                     min="0"
@@ -873,7 +1020,9 @@ export default function MenuManagementClient() {
                     onClick={() =>
                       setItemForm((prev) => ({
                         ...prev,
-                        variants: prev.variants.filter((_, variantIndex) => variantIndex !== index),
+                        variants: prev.variants.filter(
+                          (_, variantIndex) => variantIndex !== index,
+                        ),
                       }))
                     }
                     className="rounded border border-red-300 px-3 py-2 text-xs font-medium text-red-700"
@@ -883,7 +1032,9 @@ export default function MenuManagementClient() {
                 </div>
               ))}
               {itemForm.variants.length === 0 ? (
-                <p className="text-sm text-slate-500">No variants configured.</p>
+                <p className="text-sm text-slate-500">
+                  No variants configured.
+                </p>
               ) : null}
             </div>
           </section>
@@ -896,7 +1047,14 @@ export default function MenuManagementClient() {
                 onClick={() =>
                   setItemForm((prev) => ({
                     ...prev,
-                    addons: [...prev.addons, { name: "", price: "" }],
+                    addons: [
+                      ...prev.addons,
+                      {
+                        id: crypto.randomUUID(),
+                        name: "",
+                        price: "",
+                      },
+                    ],
                   }))
                 }
                 className="rounded border border-emerald-300 px-3 py-2 text-xs font-medium text-emerald-700"
@@ -907,16 +1065,23 @@ export default function MenuManagementClient() {
 
             <div className="space-y-2">
               {itemForm.addons.map((addon, index) => (
-                <div key={`${addon.name}-${index}`} className="grid gap-2 md:grid-cols-[1fr_160px_auto]">
+                <div
+                  key={`${addon.id}-${index}`}
+                  className="grid gap-2 md:grid-cols-[1fr_160px_auto]"
+                >
                   <input
                     value={addon.name}
-                    onChange={(event) => updateAddon(index, "name", event.target.value)}
+                    onChange={(event) =>
+                      updateAddon(addon.id, "name", event.target.value)
+                    }
                     placeholder="Addon name"
                     className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
                   />
                   <input
                     value={addon.price}
-                    onChange={(event) => updateAddon(index, "price", event.target.value)}
+                    onChange={(event) =>
+                      updateAddon(addon.id, "price", event.target.value)
+                    }
                     type="number"
                     step="0.01"
                     min="0"
@@ -925,19 +1090,25 @@ export default function MenuManagementClient() {
                   />
                   <button
                     type="button"
-                    onClick={() =>
+                    onClick={() => {
+                      const addonId = addon.id;
+
                       setItemForm((prev) => ({
                         ...prev,
-                        addons: prev.addons.filter((_, addonIndex) => addonIndex !== index),
-                      }))
-                    }
+                        addons: prev.addons.filter(
+                          (entry) => entry.id !== addonId,
+                        ),
+                      }));
+                    }}
                     className="rounded border border-red-300 px-3 py-2 text-xs font-medium text-red-700"
                   >
                     Remove
                   </button>
                 </div>
               ))}
-              {itemForm.addons.length === 0 ? <p className="text-sm text-slate-500">No addons configured.</p> : null}
+              {itemForm.addons.length === 0 ? (
+                <p className="text-sm text-slate-500">No addons configured.</p>
+              ) : null}
             </div>
           </section>
 
@@ -946,7 +1117,11 @@ export default function MenuManagementClient() {
             disabled={saving}
             className="w-full rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
           >
-            {saving ? "Saving..." : itemModalMode === "create" ? "Create Item" : "Save Changes"}
+            {saving
+              ? "Saving..."
+              : itemModalMode === "create"
+                ? "Create Item"
+                : "Save Changes"}
           </button>
         </form>
       </Modal>
@@ -954,18 +1129,27 @@ export default function MenuManagementClient() {
       <Modal
         open={categoryModalOpen}
         onClose={() => setCategoryModalOpen(false)}
-        title={categoryModalMode === "create" ? "Create Category" : "Edit Category"}
+        title={
+          categoryModalMode === "create" ? "Create Category" : "Edit Category"
+        }
         size="lg"
       >
         <form className="space-y-4" onSubmit={submitCategoryForm}>
           {formError ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {formError}
+            </div>
           ) : null}
           <label className="block text-sm font-medium text-slate-700">
             Name
             <input
               value={categoryForm.name}
-              onChange={(event) => setCategoryForm((prev) => ({ ...prev, name: event.target.value }))}
+              onChange={(event) =>
+                setCategoryForm((prev) => ({
+                  ...prev,
+                  name: event.target.value,
+                }))
+              }
               required
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
             />
@@ -974,7 +1158,12 @@ export default function MenuManagementClient() {
             Sort Order
             <input
               value={categoryForm.sortOrder}
-              onChange={(event) => setCategoryForm((prev) => ({ ...prev, sortOrder: event.target.value }))}
+              onChange={(event) =>
+                setCategoryForm((prev) => ({
+                  ...prev,
+                  sortOrder: event.target.value,
+                }))
+              }
               type="number"
               step="1"
               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
@@ -983,7 +1172,12 @@ export default function MenuManagementClient() {
           <label className="flex items-center gap-2 rounded-lg border border-slate-200 p-3 text-sm text-slate-700">
             <input
               checked={categoryForm.isActive}
-              onChange={(event) => setCategoryForm((prev) => ({ ...prev, isActive: event.target.checked }))}
+              onChange={(event) =>
+                setCategoryForm((prev) => ({
+                  ...prev,
+                  isActive: event.target.checked,
+                }))
+              }
               type="checkbox"
             />
             Active
@@ -993,7 +1187,11 @@ export default function MenuManagementClient() {
             disabled={saving}
             className="w-full rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
           >
-            {saving ? "Saving..." : categoryModalMode === "create" ? "Create Category" : "Save Category"}
+            {saving
+              ? "Saving..."
+              : categoryModalMode === "create"
+                ? "Create Category"
+                : "Save Category"}
           </button>
         </form>
       </Modal>
