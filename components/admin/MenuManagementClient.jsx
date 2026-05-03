@@ -366,10 +366,38 @@ export default function MenuManagementClient() {
       const payload = toMenuPayload({ ...form, [flag]: nextValue });
       if (flag === "isAvailable") payload.available = nextValue;
       await updateMenuItemV2(getItemId(item), payload);
-      await loadMenu();
+      setItems((prevItems) =>
+        prevItems.map((menuItem) =>
+          getItemId(menuItem) === getItemId(item)
+            ? {
+                ...menuItem,
+                [flag]: nextValue,
+                ...(flag === "isAvailable" ? { available: nextValue } : {}),
+              }
+            : menuItem
+        )
+      );
     } catch (requestError) {
       setError(requestError.message || "Unable to update menu item.");
     }
+  };
+
+  const handleEditItemAction = (event, item) => {
+    event.preventDefault();
+    event.stopPropagation();
+    openEditItemModal(item);
+  };
+
+  const handleToggleItemAction = (event, item) => {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleItemFlag(item, "isAvailable");
+  };
+
+  const handleDeleteItemAction = (event, item) => {
+    event.preventDefault();
+    event.stopPropagation();
+    deleteItem(item);
   };
 
   const deleteCategory = async (category) => {
@@ -549,28 +577,21 @@ export default function MenuManagementClient() {
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
-                        onClick={() => openEditItemModal(item)}
+                        onClick={(event) => handleEditItemAction(event, item)}
                         className="rounded border border-slate-300 px-2 py-1 text-xs"
                       >
                         Edit
                       </button>
                       <button
                         type="button"
-                        onClick={() => toggleItemFlag(item, "isAvailable")}
+                        onClick={(event) => handleToggleItemAction(event, item)}
                         className="rounded border border-emerald-300 px-2 py-1 text-xs text-emerald-700"
                       >
-                        Availability
+                        Toggle
                       </button>
                       <button
                         type="button"
-                        onClick={() => toggleItemFlag(item, "isActive")}
-                        className="rounded border border-slate-300 px-2 py-1 text-xs text-slate-700"
-                      >
-                        Active
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => deleteItem(item)}
+                        onClick={(event) => handleDeleteItemAction(event, item)}
                         className="rounded border border-red-300 px-2 py-1 text-xs text-red-700"
                       >
                         Delete
