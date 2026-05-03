@@ -24,7 +24,6 @@ const RESTAURANT = {
   vegNote: "100 % Pure Veg",
   openTiming: "24 HOURS OPEN",
   fssai: "22121676000682",
-  onlineLine: "Order online at Zomato, Swiggy.",
   footerText: "Thanks For Visit !!",
 };
 
@@ -246,8 +245,6 @@ export default function Home() {
           <h1 className="text-2xl font-bold text-brand-900 sm:text-3xl">
             Balaji Ji Food Arts - Bill Generator
           </h1>
-          <p className="text-sm text-brand-700">Simple POS for billing and thermal receipt printing</p>
-          <p className="mt-1 text-xs text-slate-500">Admin: /admin | API: {API_BASE_URL}</p>
         </header>
 
         <section className="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(380px,0.75fr)]">
