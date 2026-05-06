@@ -10,6 +10,11 @@ import {
   getItemId,
   isMenuItemAvailable,
 } from "../../services/menuV2Api";
+import {
+  buildCartItem,
+  isAddonMenuItem,
+  requiresVariantSelection,
+} from "./menuCartItem";
 
 const PRICING_LABELS = {
   single: "Single price",
@@ -27,11 +32,6 @@ function sortCategories(categories) {
   });
 }
 
-function requiresVariantSelection(item) {
-  const variants = Array.isArray(item.variants) ? item.variants : [];
-  return ["half-full", "size-based", "custom"].includes(item.pricingType) && variants.length > 0;
-}
-
 function getVariantPriceLine(variants) {
   if (!Array.isArray(variants) || variants.length === 0) return "";
   return variants.map((variant) => `${variant.label}: ${formatMoney(variant.price)}`).join(" | ");
@@ -41,28 +41,7 @@ function getSelectionState(state, itemId) {
   return state[itemId] || { variantCode: "", addonNames: [] };
 }
 
-function buildCartItem(item, selectedVariant, selectedAddons) {
-  const category = getCategoryName(item);
-  const addonTotal = selectedAddons.reduce((sum, addon) => sum + Number(addon.price || 0), 0);
-  const basePrice = Number(selectedVariant?.price ?? item.price ?? item.basePrice ?? getDisplayPrice(item));
-  const variantLabel = selectedVariant?.label ? ` - ${selectedVariant.label}` : "";
-  const addonLabel = selectedAddons.length
-    ? ` + ${selectedAddons.map((addon) => addon.name).join(", ")}`
-    : "";
-  const variantKey = selectedVariant?.code || selectedVariant?.label || "single";
-  const addonKey = selectedAddons.map((addon) => addon.name).join("+") || "no-addons";
-
-  return {
-    _id: `${getItemId(item)}::${variantKey}::${addonKey}`,
-    itemId: getItemId(item),
-    name: `${item.name}${variantLabel}${addonLabel}`,
-    category,
-    price: basePrice + addonTotal,
-    qty: 1,
-  };
-}
-
-export default function DynamicMenuPanel({ onAddItem }) {
+export default function DynamicMenuPanel({ onAddItem, hideAddonItems = false }) {
   const [categories, setCategories] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [activeCategory, setActiveCategory] = useState("all");
@@ -143,6 +122,11 @@ export default function DynamicMenuPanel({ onAddItem }) {
     return categories.find((category) => category.id === activeCategory)?.name || "Selected category";
   }, [activeCategory, categories]);
 
+  const visibleMenuItems = useMemo(() => {
+    if (!hideAddonItems) return menuItems;
+    return menuItems.filter((item) => !isAddonMenuItem(item));
+  }, [hideAddonItems, menuItems]);
+
   const setVariant = (itemId, variantCode) => {
     setSelectionByItem((prev) => ({
       ...prev,
@@ -203,7 +187,7 @@ export default function DynamicMenuPanel({ onAddItem }) {
         <div>
           <h2 className="text-xl font-semibold text-brand-900">Menu</h2>
           <p className="text-xs text-slate-500">
-            {loading ? "Loading live items..." : `${menuItems.length} items in ${visibleCategoryName}`}
+            {loading ? "Loading live items..." : `${visibleMenuItems.length} items in ${visibleCategoryName}`}
           </p>
         </div>
         <button
@@ -279,7 +263,7 @@ export default function DynamicMenuPanel({ onAddItem }) {
       ) : null}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {menuItems.map((item) => {
+        {visibleMenuItems.map((item) => {
           const itemId = getItemId(item);
           const variants = Array.isArray(item.variants) ? item.variants : [];
           const addons = Array.isArray(item.addons) ? item.addons : [];
@@ -411,7 +395,7 @@ export default function DynamicMenuPanel({ onAddItem }) {
         })}
       </div>
 
-      {!loading && !error && menuItems.length === 0 ? (
+      {!loading && !error && visibleMenuItems.length === 0 ? (
         <div className="rounded-lg border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-600">
           No menu items match this filter.
         </div>

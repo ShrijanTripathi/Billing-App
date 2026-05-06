@@ -23,18 +23,18 @@ body {
 
 .thermal-receipt {
   box-sizing: border-box;
-  width: 76mm;
+  width: 80mm;
   max-width: 100%;
   margin: 0 auto;
-  padding: 10px 12px 12px;
+  padding: 12px 13px 14px;
   background: #ffffff;
   border: 1px solid #111111;
   color: #000000;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 11px;
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
-  line-height: 1.18;
+  font-weight: 800;
+  line-height: 1.22;
 }
 
 .thermal-receipt * {
@@ -47,22 +47,22 @@ body {
 }
 
 .receipt-brand {
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 900;
   letter-spacing: 0;
-  line-height: 1.05;
+  line-height: 1.08;
   text-transform: uppercase;
 }
 
 .receipt-header-line {
-  font-size: 10.5px;
-  font-weight: 700;
-  line-height: 1.12;
+  font-size: 12.2px;
+  font-weight: 800;
+  line-height: 1.14;
 }
 
 .receipt-divider {
-  border-top: 1.6px solid #000000;
-  margin: 5px 0;
+  border-top: 1.8px solid #000000;
+  margin: 7px 0;
 }
 
 .receipt-empty {
@@ -71,27 +71,27 @@ body {
 }
 
 .receipt-customer {
-  border-bottom: 1.2px solid #000000;
-  font-size: 10.5px;
+  border-bottom: 1.4px solid #000000;
+  font-size: 12px;
   font-weight: 800;
-  margin-bottom: 3px;
-  padding-bottom: 2px;
+  margin-bottom: 4px;
+  padding-bottom: 3px;
 }
 
 .receipt-order-type {
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 900;
-  line-height: 1.1;
-  margin: 2px 0 4px;
+  line-height: 1.12;
+  margin: 3px 0 6px;
   text-align: center;
 }
 
 .receipt-info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: 6px;
-  row-gap: 2px;
-  font-size: 10px;
+  column-gap: 8px;
+  row-gap: 3px;
+  font-size: 11.8px;
 }
 
 .receipt-info-row {
@@ -116,28 +116,28 @@ body {
   border-collapse: collapse;
   table-layout: fixed;
   width: 100%;
-  font-size: 9.7px;
-  line-height: 1.14;
+  font-size: 11.5px;
+  line-height: 1.18;
 }
 
 .receipt-items th {
   border-bottom: 1.4px solid #000000;
   font-weight: 900;
-  padding: 2px 1px;
+  padding: 3px 1px;
 }
 
 .receipt-items td {
-  font-weight: 700;
-  padding: 2px 1px;
+  font-weight: 800;
+  padding: 3px 1px;
   vertical-align: top;
 }
 
 .receipt-col-no {
-  width: 8%;
+  width: 9%;
 }
 
 .receipt-col-item {
-  width: 41%;
+  width: 39%;
 }
 
 .receipt-col-qty {
@@ -145,7 +145,7 @@ body {
 }
 
 .receipt-col-price {
-  width: 18%;
+  width: 19%;
 }
 
 .receipt-col-amount {
@@ -169,12 +169,12 @@ body {
 }
 
 .receipt-number {
-  padding-right: 2px;
+  padding-right: 3px;
 }
 
 .receipt-item-name {
   overflow-wrap: anywhere;
-  padding-left: 2px;
+  padding-left: 4px;
   word-break: break-word;
 }
 
@@ -184,9 +184,9 @@ body {
 }
 
 .receipt-item-name small {
-  font-size: 9px;
-  font-weight: 700;
-  line-height: 1.05;
+  font-size: 10.5px;
+  font-weight: 800;
+  line-height: 1.08;
 }
 
 .receipt-numeric {
@@ -194,8 +194,8 @@ body {
 }
 
 .receipt-summary {
-  font-size: 10.6px;
-  font-weight: 800;
+  font-size: 12.5px;
+  font-weight: 900;
 }
 
 .receipt-summary-row {
@@ -203,7 +203,7 @@ body {
   display: flex;
   gap: 8px;
   justify-content: space-between;
-  margin: 1px 0;
+  margin: 2px 0;
 }
 
 .receipt-summary-row strong {
@@ -212,33 +212,33 @@ body {
 }
 
 .receipt-grand-total {
-  border-top: 1.7px solid #000000;
-  font-size: 13px;
+  border-top: 1.9px solid #000000;
+  font-size: 16px;
   font-weight: 900;
-  margin-top: 4px;
-  padding-top: 4px;
+  margin-top: 5px;
+  padding-top: 5px;
 }
 
 .receipt-footer {
-  font-size: 10.2px;
-  font-weight: 700;
-  line-height: 1.1;
+  font-size: 11.5px;
+  font-weight: 800;
+  line-height: 1.15;
   text-align: center;
 }
 
 .receipt-barcode-wrap {
-  margin: 3px 0 6px;
+  margin: 5px 0 7px;
 }
 
 .receipt-barcode-caption {
-  font-size: 9px;
-  font-weight: 800;
-  margin-bottom: 2px;
+  font-size: 10.5px;
+  font-weight: 900;
+  margin-bottom: 3px;
 }
 
 .receipt-barcode {
   display: inline-flex;
-  height: 27px;
+  height: 32px;
   justify-content: center;
   max-width: 100%;
   overflow: hidden;
@@ -260,11 +260,11 @@ body {
 }
 
 .receipt-footer-line {
-  font-size: 10px;
+  font-size: 11.2px;
 }
 
 .receipt-thanks {
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 900;
 }
 
@@ -296,10 +296,11 @@ body {
 
   .thermal-print-area {
     background: #ffffff !important;
+    box-sizing: border-box !important;
     color: #000000 !important;
     display: block !important;
     margin: 0 !important;
-    padding: 1.5mm 2mm 3mm !important;
+    padding: 1mm 1mm 3mm !important;
     width: 80mm !important;
   }
 
@@ -307,20 +308,20 @@ body {
     display: block !important;
     margin: 0 !important;
     padding: 0 !important;
-    width: 76mm !important;
+    width: 78mm !important;
   }
 
   .thermal-print-area .thermal-receipt {
     background: #ffffff !important;
     border: 0 !important;
     color: #000000 !important;
-    font-size: 10.8px !important;
-    font-weight: 800 !important;
-    line-height: 1.14 !important;
+    font-size: 12.4px !important;
+    font-weight: 850 !important;
+    line-height: 1.18 !important;
     margin: 0 auto !important;
-    max-width: 76mm !important;
+    max-width: 78mm !important;
     padding: 0 !important;
-    width: 76mm !important;
+    width: 78mm !important;
   }
 
   .thermal-print-area .thermal-receipt,
@@ -348,10 +349,52 @@ body {
   }
 
   .thermal-print-area .receipt-brand {
-    font-size: 13.5px !important;
+    font-size: 16px !important;
+    line-height: 1.08 !important;
+  }
+
+  .thermal-print-area .receipt-header-line {
+    font-size: 11.7px !important;
+    line-height: 1.12 !important;
+  }
+
+  .thermal-print-area .receipt-order-type {
+    font-size: 14px !important;
+    margin: 3px 0 5px !important;
+  }
+
+  .thermal-print-area .receipt-info-grid {
+    column-gap: 6px !important;
+    font-size: 11.2px !important;
   }
 
   .thermal-print-area .receipt-items {
-    font-size: 9.6px !important;
+    font-size: 10.9px !important;
+    line-height: 1.16 !important;
+  }
+
+  .thermal-print-area .receipt-items th,
+  .thermal-print-area .receipt-items td {
+    padding: 2px 1px !important;
+  }
+
+  .thermal-print-area .receipt-summary {
+    font-size: 12.1px !important;
+  }
+
+  .thermal-print-area .receipt-grand-total {
+    font-size: 15px !important;
+  }
+
+  .thermal-print-area .receipt-footer {
+    font-size: 11px !important;
+  }
+
+  .thermal-print-area .receipt-footer-line {
+    font-size: 10.8px !important;
+  }
+
+  .thermal-print-area .receipt-thanks {
+    font-size: 11.5px !important;
   }
 }

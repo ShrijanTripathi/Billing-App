@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { apiRequest, API_BASE_URL } from "../services/apiClient";
+import { apiRequest } from "../services/apiClient";
 import ThermalReceipt from "../components/ThermalReceipt";
 import DynamicMenuPanel from "../components/pos/DynamicMenuPanel";
+import QuickAddonPanel from "../components/pos/QuickAddonPanel";
 import {
   calculateBillTotals,
   clampDiscountPercent,
@@ -52,7 +53,11 @@ export default function Home() {
   const [discountError, setDiscountError] = useState("");
   const [discountPanelOpen, setDiscountPanelOpen] = useState(false);
   const [saleType, setSaleType] = useState("OFFLINE");
+  const [orderType, setOrderType] = useState("TAKE_AWAY");
   const [bill, setBill] = useState(null);
+
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
   const receiptRef = useRef(null);
 
@@ -68,6 +73,10 @@ export default function Home() {
       const savedCart = localStorage.getItem("balaji_cart");
       const savedBill = localStorage.getItem("balaji_last_bill");
       const savedDiscount = localStorage.getItem("balaji_discount_percent");
+      const savedOrderType = localStorage.getItem("balaji_order_type");
+      const savedCustomerName = localStorage.getItem("balaji_customer_name");
+      const savedCustomerPhone = localStorage.getItem("balaji_customer_phone");
+
       if (savedCart) setCart(JSON.parse(savedCart));
       if (savedBill) setBill(JSON.parse(savedBill));
       if (savedDiscount) {
@@ -75,13 +84,38 @@ export default function Home() {
         setDiscountPercent(sanitized);
         setDiscountInput(String(sanitized));
       }
+      if (["TAKE_AWAY", "DINING"].includes(savedOrderType)) {
+        setOrderType(savedOrderType);
+      }
+
+      if (savedCustomerName) setCustomerName(savedCustomerName);
+      if (savedCustomerPhone) setCustomerPhone(savedCustomerPhone);
     } catch {
       setCart([]);
       setBill(null);
       setDiscountPercent(0);
       setDiscountInput("0");
+      setOrderType("TAKE_AWAY");
+      setCustomerName("");
+      setCustomerPhone("");
     }
   }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("balaji_customer_name", String(customerName || ""));
+    } catch {
+      // Ignore storage write failures.
+    }
+  }, [customerName]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("balaji_customer_phone", String(customerPhone || ""));
+    } catch {
+      // Ignore storage write failures.
+    }
+  }, [customerPhone]);
 
   useEffect(() => {
     try {
@@ -98,6 +132,14 @@ export default function Home() {
       // Ignore storage write failures.
     }
   }, [discountPercent]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("balaji_order_type", orderType);
+    } catch {
+      // Ignore storage write failures.
+    }
+  }, [orderType]);
 
   const saveBill = (nextBill) => {
     setBill(nextBill);
@@ -139,6 +181,16 @@ export default function Home() {
     setDiscountError("");
     setDiscountPanelOpen(false);
     setSaleType("OFFLINE");
+    setOrderType("TAKE_AWAY");
+
+    setCustomerName("");
+    setCustomerPhone("");
+    try {
+      localStorage.setItem("balaji_customer_name", "");
+      localStorage.setItem("balaji_customer_phone", "");
+    } catch {
+      // Ignore storage write failures.
+    }
   };
 
   const openDiscountPanel = () => {
@@ -184,11 +236,16 @@ export default function Home() {
 
     const snapshot = {
       saleType,
+      orderType,
       billNo: randomNumber(5),
       tokenNo: nextToken,
       date,
       time,
       billedAt: now.toISOString(),
+
+      customerName: String(customerName || "").trim() || "",
+      customerPhone: String(customerPhone || "").trim() || "",
+
       items: cart.map((item) => ({
         itemId: item.itemId || item._id,
         name: item.name,
@@ -206,6 +263,7 @@ export default function Home() {
     saveBill(snapshot);
     persistSale(snapshot);
     setSaleType("OFFLINE");
+    setOrderType("TAKE_AWAY");
   };
 
   const printBill = () => {
@@ -240,205 +298,280 @@ export default function Home() {
   return (
     <>
       <main className="app-shell min-h-screen p-3 sm:p-5">
-      <div className="mx-auto w-full max-w-7xl">
-        <header className="mb-4 rounded-xl border border-brand-100 bg-white p-4 shadow-sm">
-          <h1 className="text-2xl font-bold text-brand-900 sm:text-3xl">
-            Balaji Ji Food Arts - Bill Generator
-          </h1>
-        </header>
+        <div className="mx-auto w-full max-w-7xl">
+          <header className="mb-4 rounded-xl border border-brand-100 bg-white p-4 shadow-sm">
+            <h1 className="text-2xl font-bold text-brand-900 sm:text-3xl">
+              Balaji Ji Food Arts
+            </h1>
+          </header>
 
-        <section className="grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(380px,0.75fr)]">
-          <DynamicMenuPanel onAddItem={addItem} />
+          <section className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(390px,0.8fr)]">
+            <DynamicMenuPanel onAddItem={addItem} hideAddonItems />
 
-          <div className="rounded-xl border border-brand-100 bg-white p-4 shadow-sm">
-            <h2 className="mb-3 text-xl font-semibold text-brand-900">Cart</h2>
-            {!cart.length && <p className="text-sm text-gray-500">No items in cart.</p>}
+            <div className="space-y-4">
+              <QuickAddonPanel onAddItem={addItem} />
 
-            <div className="space-y-3 no-print">
-              {cart.map((item) => (
-                <div
-                  key={item._id}
-                  className="flex items-center justify-between rounded-lg border border-gray-200 p-3"
-                >
-                  <div>
-                    <div className="font-medium text-gray-800">{item.name}</div>
-                    <div className="text-sm text-gray-600">{"\u20B9"}{item.price} each</div>
+              <div className="rounded-xl border border-brand-100 bg-white p-4 shadow-sm">
+                <h2 className="mb-3 text-xl font-semibold text-brand-900">Cart</h2>
+                {!cart.length && <p className="text-sm text-gray-500">No items in cart.</p>}
+
+                <div className="space-y-3 no-print">
+                  {cart.map((item) => (
+                    <div
+                      key={item._id}
+                      className="flex items-center justify-between rounded-lg border border-gray-200 p-3"
+                    >
+                      <div>
+                        <div className="font-medium text-gray-800">{item.name}</div>
+                        <div className="text-sm text-gray-600">{"\u20B9"}{item.price} each</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => changeQty(item._id, -1)}
+                          className="h-8 w-8 rounded border border-gray-300 text-lg"
+                        ></button>
+                        <span className="w-6 text-center font-medium">{item.qty}</span>
+                        <button
+                          type="button"
+                          onClick={() => changeQty(item._id, 1)}
+                          className="h-8 w-8 rounded border border-gray-300 text-lg"
+                        >
+                          +
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeItem(item._id)}
+                          className="rounded bg-red-50 px-2 py-1 text-xs text-red-700"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="no-print mt-4 rounded-lg bg-brand-50 p-3 text-sm">
+                  <div className="mb-3 flex flex-wrap gap-3">
+                    <div className="flex-1 min-w-[170px]">
+                      <label
+                        className="mb-1 block text-xs font-medium text-slate-700"
+                        htmlFor="customerNameInput"
+                      >
+                        Customer Name
+                      </label>
+                      <input
+                        id="customerNameInput"
+                        type="text"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                        className="w-full rounded border border-slate-300 px-2 py-1 text-sm outline-none focus:border-brand-600"
+                        placeholder="Enter name"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-[170px]">
+                      <label
+                        className="mb-1 block text-xs font-medium text-slate-700"
+                        htmlFor="customerPhoneInput"
+                      >
+                        Phone Number
+                      </label>
+                      <input
+                        id="customerPhoneInput"
+                        type="tel"
+                        inputMode="tel"
+                        value={customerPhone}
+                        onChange={(e) => setCustomerPhone(e.target.value)}
+                        className="w-full rounded border border-slate-300 px-2 py-1 text-sm outline-none focus:border-brand-600"
+                        placeholder="Enter phone"
+                      />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => changeQty(item._id, -1)}
-                      className="h-8 w-8 rounded border border-gray-300 text-lg"
-                    >
-                      -
-                    </button>
-                    <span className="w-6 text-center font-medium">{item.qty}</span>
-                    <button
-                      type="button"
-                      onClick={() => changeQty(item._id, 1)}
-                      className="h-8 w-8 rounded border border-gray-300 text-lg"
-                    >
-                      +
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => removeItem(item._id)}
-                      className="rounded bg-red-50 px-2 py-1 text-xs text-red-700"
-                    >
-                      Remove
-                    </button>
+
+                  <div className="flex justify-between">
+                    <span>Total Qty:</span>
+                    <span>{totals.totalQty}</span>
+                  </div>
+                  <div className="mt-1 flex justify-between">
+                    <span>Subtotal:</span>
+                    <span>{"\u20B9"}{totals.subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="mt-1 flex justify-between">
+                    <span>Discount ({totals.discountPercent.toFixed(2)}%):</span>
+                    <span>-{"\u20B9"}{totals.discountAmount.toFixed(2)}</span>
+                  </div>
+                  <div className="mt-1 flex justify-between font-semibold">
+                    <span>Final Payable:</span>
+                    <span>{"\u20B9"}{totals.grandTotal.toFixed(2)}</span>
                   </div>
                 </div>
-              ))}
-            </div>
 
-            <div className="no-print mt-4 rounded-lg bg-brand-50 p-3 text-sm">
-              <div className="flex justify-between">
-                <span>Total Qty:</span>
-                <span>{totals.totalQty}</span>
-              </div>
-              <div className="mt-1 flex justify-between">
-                <span>Subtotal:</span>
-                <span>{"\u20B9"}{totals.subtotal.toFixed(2)}</span>
-              </div>
-              <div className="mt-1 flex justify-between">
-                <span>Discount ({totals.discountPercent.toFixed(2)}%):</span>
-                <span>-{"\u20B9"}{totals.discountAmount.toFixed(2)}</span>
-              </div>
-              <div className="mt-1 flex justify-between font-semibold">
-                <span>Final Payable:</span>
-                <span>{"\u20B9"}{totals.grandTotal.toFixed(2)}</span>
-              </div>
-            </div>
+                <div className="no-print mt-4 flex flex-wrap gap-2">
+                  <div className="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                    <span className="text-slate-700">Order:</span>
+                    <div className="flex overflow-hidden rounded-md border border-slate-300">
+                      {[
+                        ["TAKE_AWAY", "Take Away"],
+                        ["DINING", "Dining"],
+                      ].map(([value, label]) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setOrderType(value)}
+                          className={`h-8 px-3 text-xs font-semibold transition ${
+                            orderType === value
+                              ? "bg-brand-700 text-white"
+                              : "bg-white text-slate-700 hover:bg-slate-50"
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-            <div className="no-print mt-4 flex flex-wrap gap-2">
-              <div className="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm">
-                <span className="text-slate-700">Sale Type:</span>
-                <select
-                  value={saleType}
-                  onChange={(event) => setSaleType(event.target.value)}
-                  className="rounded border border-slate-300 px-2 py-1 text-sm outline-none"
-                >
-                  <option value="ONLINE">ONLINE</option>
-                  <option value="OFFLINE">OFFLINE</option>
-                </select>
-              </div>
-              <button
-                type="button"
-                onClick={openDiscountPanel}
-                className="rounded-lg border border-brand-500 px-4 py-2 text-brand-800"
-              >
-                Discount
-              </button>
-              <button
-                type="button"
-                onClick={generateBill}
-                disabled={!cart.length}
-                className="rounded-lg bg-brand-700 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Generate Bill
-              </button>
-              <button
-                type="button"
-                onClick={printBill}
-                disabled={!bill}
-                className="rounded-lg border border-brand-700 px-4 py-2 text-brand-800 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Print Bill
-              </button>
-              <button
-                type="button"
-                onClick={downloadPdf}
-                disabled={!bill || isPdfGenerating}
-                className="rounded-lg border border-gray-400 px-4 py-2 text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {isPdfGenerating ? "Generating PDF..." : "Download PDF"}
-              </button>
-              <button
-                type="button"
-                onClick={clearOrder}
-                className="rounded-lg border border-red-300 px-4 py-2 text-red-700"
-              >
-                Clear Cart
-              </button>
-            </div>
+                  <div className="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                    <span className="text-slate-700">Sale Type:</span>
+                    <select
+                      value={saleType}
+                      onChange={(event) => setSaleType(event.target.value)}
+                      className="rounded border border-slate-300 px-2 py-1 text-sm outline-none"
+                    >
+                      <option value="ONLINE">ONLINE</option>
+                      <option value="OFFLINE">OFFLINE</option>
+                    </select>
+                  </div>
 
-            <div className="mt-5">
-              <h3 className="no-print mb-2 text-lg font-semibold text-brand-900">
-                Receipt Preview
-              </h3>
-              <ThermalReceipt
-                ref={receiptRef}
-                bill={bill}
-                restaurant={RESTAURANT}
-                className="thermal-screen-receipt"
-              />
-            </div>
-          </div>
-        </section>
-      </div>
+                  <button
+                    type="button"
+                    onClick={openDiscountPanel}
+                    className="rounded-lg border border-brand-500 px-4 py-2 text-brand-800"
+                  >
+                    Discount
+                  </button>
 
-      {discountPanelOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
-          <div className="w-full max-w-sm rounded-xl bg-white p-4 shadow-xl">
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-brand-900">Apply Discount</h3>
-              <button
-                type="button"
-                onClick={() => setDiscountPanelOpen(false)}
-                className="rounded-md border border-slate-300 px-2 py-1 text-sm text-slate-700"
-              >
-                Close
-              </button>
-            </div>
+                  <button
+                    type="button"
+                    onClick={generateBill}
+                    disabled={!cart.length}
+                    className="rounded-lg bg-brand-700 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Generate Bill
+                  </button>
 
-            <label className="mb-2 block text-sm text-slate-700" htmlFor="discountPercentInput">
-              Discount percentage
-            </label>
-            <input
-              id="discountPercentInput"
-              type="number"
-              min="0"
-              max="100"
-              step="0.01"
-              value={discountInput}
-              onChange={(event) => {
-                setDiscountInput(event.target.value);
-                if (discountError) setDiscountError("");
-              }}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
-              placeholder="Enter discount %"
-            />
-            {discountError ? <p className="mt-2 text-xs text-red-600">{discountError}</p> : null}
+                  <button
+                    type="button"
+                    onClick={printBill}
+                    disabled={!bill}
+                    className="rounded-lg border border-brand-700 px-4 py-2 text-brand-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Print Bill
+                  </button>
 
-            <div className="mt-4 rounded-lg bg-brand-50 p-3 text-sm">
-              <div className="flex justify-between">
-                <span>Subtotal:</span>
-                <span>{"\u20B9"}{previewTotals.subtotal.toFixed(2)}</span>
-              </div>
-              <div className="mt-1 flex justify-between">
-                <span>Discount ({previewTotals.discountPercent.toFixed(2)}%):</span>
-                <span>-{"\u20B9"}{previewTotals.discountAmount.toFixed(2)}</span>
-              </div>
-              <div className="mt-1 flex justify-between font-semibold">
-                <span>Final Payable:</span>
-                <span>{"\u20B9"}{previewTotals.grandTotal.toFixed(2)}</span>
+                  <button
+                    type="button"
+                    onClick={downloadPdf}
+                    disabled={!bill || isPdfGenerating}
+                    className="rounded-lg border border-gray-400 px-4 py-2 text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isPdfGenerating ? "Generating PDF..." : "Download PDF"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={clearOrder}
+                    className="rounded-lg border border-red-300 px-4 py-2 text-red-700"
+                  >
+                    Clear Cart
+                  </button>
+                </div>
+
+                <div className="mt-5">
+                  <h3 className="no-print mb-2 text-lg font-semibold text-brand-900">
+                    Receipt Preview
+                  </h3>
+                  <ThermalReceipt
+                    ref={receiptRef}
+                    bill={bill}
+                    restaurant={RESTAURANT}
+                    className="thermal-screen-receipt"
+                  />
+                </div>
               </div>
             </div>
-
-            <button
-              type="button"
-              onClick={applyDiscount}
-              className="mt-4 w-full rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white"
-            >
-              Apply Discount
-            </button>
-          </div>
+          </section>
         </div>
-      ) : null}
+
+        {discountPanelOpen ? (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
+            <div className="w-full max-w-sm rounded-xl bg-white p-4 shadow-xl">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-brand-900">Apply Discount</h3>
+                <button
+                  type="button"
+                  onClick={() => setDiscountPanelOpen(false)}
+                  className="rounded-md border border-slate-300 px-2 py-1 text-sm text-slate-700"
+                >
+                  Close
+                </button>
+              </div>
+
+              <label
+                className="mb-2 block text-sm text-slate-700"
+                htmlFor="discountPercentInput"
+              >
+                Discount percentage
+              </label>
+
+              <input
+                id="discountPercentInput"
+                type="number"
+                min="0"
+                max="100"
+                step="0.01"
+                value={discountInput}
+                onChange={(event) => {
+                  setDiscountInput(event.target.value);
+                  if (discountError) setDiscountError("");
+                }}
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
+                placeholder="Enter discount %"
+              />
+              {discountError ? <p className="mt-2 text-xs text-red-600">{discountError}</p> : null}
+
+              <div className="mt-4 rounded-lg bg-brand-50 p-3 text-sm">
+                <div className="flex justify-between">
+                  <span>Subtotal:</span>
+                  <span>{"\u20B9"}{previewTotals.subtotal.toFixed(2)}</span>
+                </div>
+                <div className="mt-1 flex justify-between">
+                  <span>Discount ({previewTotals.discountPercent.toFixed(2)}%):</span>
+                  <span>-{"\u20B9"}{previewTotals.discountAmount.toFixed(2)}</span>
+                </div>
+                <div className="mt-1 flex justify-between font-semibold">
+                  <span>Final Payable:</span>
+                  <span>{"\u20B9"}{previewTotals.grandTotal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={applyDiscount}
+                className="mt-4 w-full rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white"
+              >
+                Apply Discount
+              </button>
+            </div>
+          </div>
+        ) : null}
       </main>
+
       <div className="thermal-print-area" aria-hidden="true">
-        <ThermalReceipt bill={bill} restaurant={RESTAURANT} className="thermal-print-receipt" />
+        <ThermalReceipt
+          bill={bill}
+          restaurant={RESTAURANT}
+          className="thermal-print-receipt"
+        />
       </div>
     </>
   );

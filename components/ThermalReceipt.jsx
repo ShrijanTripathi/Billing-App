@@ -6,12 +6,15 @@ const RUPEE = "\u20B9";
 
 const ORDER_TYPE_LABELS = {
   DELIVERY: "Delivery",
+  DINING: "Dining",
   DINEIN: "Dine In",
   DINE_IN: "Dine In",
   OFFLINE: "Pick Up",
   ONLINE: "Delivery",
   PICKUP: "Pick Up",
   PICK_UP: "Pick Up",
+  TAKEAWAY: "Take Away",
+  TAKE_AWAY: "Take Away",
 };
 
 const CODE39_PATTERNS = {
