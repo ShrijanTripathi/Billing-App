@@ -182,8 +182,8 @@ export default function DynamicMenuPanel({ onAddItem, hideAddonItems = false }) 
   };
 
   return (
-    <section className="no-print rounded-xl border border-brand-100 bg-white p-3 shadow-sm sm:p-4">
-      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+    <section className="no-print rounded-2xl border border-white/80 bg-white/95 p-3 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur sm:p-4">
+      <div className="mb-3 flex flex-col items-stretch gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-xl font-semibold text-brand-900">Menu</h2>
           <p className="text-xs text-slate-500">
@@ -208,12 +208,12 @@ export default function DynamicMenuPanel({ onAddItem, hideAddonItems = false }) 
           value={searchText}
           onChange={(event) => setSearchText(event.target.value)}
           placeholder="Search menu item"
-          className="h-11 rounded-lg border border-slate-300 px-3 text-base outline-none focus:border-brand-600"
+          className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-base shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
         />
         <select
           value={activeCategory}
           onChange={(event) => setActiveCategory(event.target.value)}
-          className="h-11 rounded-lg border border-slate-300 px-3 text-sm outline-none focus:border-brand-600"
+          className="h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
         >
           <option value="all">All Categories</option>
           {categories.map((category) => (
@@ -228,10 +228,10 @@ export default function DynamicMenuPanel({ onAddItem, hideAddonItems = false }) 
         <button
           type="button"
           onClick={() => setActiveCategory("all")}
-          className={`h-10 whitespace-nowrap rounded-lg border px-3 text-sm font-medium ${
+          className={`h-10 whitespace-nowrap rounded-xl border px-3 text-sm font-medium shadow-sm transition ${
             activeCategory === "all"
               ? "border-brand-700 bg-brand-700 text-white"
-              : "border-slate-300 bg-white text-slate-700"
+              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
           }`}
         >
           All
@@ -241,10 +241,10 @@ export default function DynamicMenuPanel({ onAddItem, hideAddonItems = false }) 
             key={category.id}
             type="button"
             onClick={() => setActiveCategory(category.id)}
-            className={`h-10 whitespace-nowrap rounded-lg border px-3 text-sm font-medium ${
+            className={`h-10 whitespace-nowrap rounded-xl border px-3 text-sm font-medium shadow-sm transition ${
               activeCategory === category.id
                 ? "border-brand-700 bg-brand-700 text-white"
-                : "border-slate-300 bg-white text-slate-700"
+                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
             }`}
           >
             {category.name}
@@ -262,7 +262,7 @@ export default function DynamicMenuPanel({ onAddItem, hideAddonItems = false }) 
         <p className="mb-3 text-sm text-slate-500">Loading categories...</p>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 items-stretch gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {visibleMenuItems.map((item) => {
           const itemId = getItemId(item);
           const variants = Array.isArray(item.variants) ? item.variants : [];
@@ -278,8 +278,8 @@ export default function DynamicMenuPanel({ onAddItem, hideAddonItems = false }) 
           return (
             <article
               key={itemId}
-              className={`rounded-lg border p-3 transition ${
-                available ? "border-brand-100 bg-brand-50" : "border-slate-200 bg-slate-50 opacity-75"
+              className={`flex min-h-full flex-col rounded-xl border p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
+                available ? "border-brand-100 bg-gradient-to-br from-brand-50 to-white" : "border-slate-200 bg-slate-50 opacity-75"
               }`}
             >
               <div className="mb-2 flex items-start justify-between gap-2">
@@ -306,14 +306,14 @@ export default function DynamicMenuPanel({ onAddItem, hideAddonItems = false }) 
               </div>
 
               <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-slate-600">
-                <span className="rounded bg-white px-2 py-1 font-medium text-slate-700">
+                <span className="rounded-lg bg-white px-2 py-1 font-medium text-slate-700 shadow-sm">
                   {PRICING_LABELS[item.pricingType] || item.pricingType || "Single price"}
                 </span>
-                <span className="rounded bg-white px-2 py-1 font-medium text-slate-700">
+                <span className="rounded-lg bg-white px-2 py-1 font-medium text-slate-700 shadow-sm">
                   {item.itemType || "regular"}
                 </span>
                 {addons.length ? (
-                  <span className="rounded bg-white px-2 py-1 font-medium text-slate-700">
+                  <span className="rounded-lg bg-white px-2 py-1 font-medium text-slate-700 shadow-sm">
                     {addons.length} addon{addons.length > 1 ? "s" : ""}
                   </span>
                 ) : null}
@@ -332,10 +332,10 @@ export default function DynamicMenuPanel({ onAddItem, hideAddonItems = false }) 
                           key={`${itemId}-${variant.code}-${variant.label}`}
                           type="button"
                           onClick={() => setVariant(itemId, variant.code || variant.label)}
-                          className={`min-h-11 rounded-lg border px-2 py-2 text-left text-sm transition ${
+                          className={`min-h-12 rounded-xl border px-2 py-2 text-left text-sm transition ${
                             variantSelected
                               ? "border-brand-700 bg-white text-brand-900 shadow-sm"
-                              : "border-brand-100 bg-white/80 text-slate-700"
+                              : "border-brand-100 bg-white/80 text-slate-700 hover:border-brand-500"
                           }`}
                         >
                           <span className="block font-semibold">{variant.label}</span>
@@ -360,10 +360,10 @@ export default function DynamicMenuPanel({ onAddItem, hideAddonItems = false }) 
                           key={`${itemId}-${addon.name}`}
                           type="button"
                           onClick={() => toggleAddon(itemId, addon.name)}
-                          className={`rounded-lg border px-2 py-2 text-xs font-medium ${
+                          className={`rounded-xl border px-2 py-2 text-xs font-medium transition ${
                             selected
                               ? "border-brand-700 bg-white text-brand-900"
-                              : "border-slate-300 bg-white/80 text-slate-700"
+                              : "border-slate-300 bg-white/80 text-slate-700 hover:border-brand-500"
                           }`}
                         >
                           {addon.name} +{formatMoney(addon.price)}
@@ -382,7 +382,7 @@ export default function DynamicMenuPanel({ onAddItem, hideAddonItems = false }) 
                 type="button"
                 onClick={() => addItem(item)}
                 disabled={!available}
-                className={`h-11 w-full rounded-lg px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                className={`mt-auto h-11 w-full rounded-xl px-3 text-sm font-semibold shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60 ${
                   canAdd
                     ? "bg-brand-700 text-white hover:bg-brand-900"
                     : "border border-brand-200 bg-white text-brand-800"

@@ -202,19 +202,19 @@ export default function QuickAddonPanel({ onAddItem }) {
   };
 
   return (
-    <section className="no-print rounded-xl border border-brand-100 bg-white p-3 shadow-sm sm:p-4">
-      <div className="mb-3 flex items-start justify-between gap-3">
+    <section className="no-print rounded-2xl border border-white/80 bg-white/95 p-3 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur sm:p-4">
+      <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-xl font-semibold text-brand-900">Quick Addons</h2>
           <p className="text-xs text-slate-500">
             {loading ? "Loading addons..." : `${filteredAddons.length} addon items`}
           </p>
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0">
           <button
             type="button"
             onClick={openAddonModal}
-            className="h-9 rounded-lg bg-brand-700 px-3 text-xs font-semibold text-white hover:bg-brand-900"
+            className="h-9 rounded-xl bg-brand-700 px-3 text-xs font-semibold text-white shadow-sm transition hover:bg-brand-900"
           >
             Add Addon
           </button>
@@ -222,7 +222,7 @@ export default function QuickAddonPanel({ onAddItem }) {
             type="button"
             onClick={loadAddons}
             disabled={loading}
-            className="h-9 rounded-lg border border-slate-300 px-3 text-xs font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="h-9 rounded-xl border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Refresh
           </button>
@@ -233,7 +233,7 @@ export default function QuickAddonPanel({ onAddItem }) {
         value={searchText}
         onChange={(event) => setSearchText(event.target.value)}
         placeholder="Search addons"
-        className="h-10 w-full rounded-lg border border-slate-300 px-3 text-sm outline-none focus:border-brand-600"
+        className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
       />
 
       {error ? (
@@ -257,9 +257,9 @@ export default function QuickAddonPanel({ onAddItem }) {
           return (
             <article
               key={itemId}
-              className="rounded-lg border border-brand-100 bg-brand-50 p-2.5"
+              className="rounded-xl border border-brand-100 bg-gradient-to-br from-brand-50 to-white p-2.5 shadow-sm transition hover:shadow-md"
             >
-              <div className="flex items-start gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
                 <div className="min-w-0 flex-1">
                   <h3 className="break-words text-sm font-semibold leading-tight text-brand-900">
                     {item.name}
@@ -275,7 +275,7 @@ export default function QuickAddonPanel({ onAddItem }) {
                   type="button"
                   onClick={() => addAddon(item)}
                   disabled={!available}
-                  className={`h-9 shrink-0 rounded-lg px-3 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                  className={`h-9 shrink-0 rounded-xl px-3 text-xs font-semibold shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto ${
                     canAdd
                       ? "bg-brand-700 text-white hover:bg-brand-900"
                       : "border border-brand-200 bg-white text-brand-800"
@@ -296,10 +296,10 @@ export default function QuickAddonPanel({ onAddItem }) {
                         key={`${itemId}-${variant.code}-${variant.label}`}
                         type="button"
                         onClick={() => setVariant(itemId, variant.code || variant.label)}
-                        className={`min-h-10 rounded-lg border px-2 py-1.5 text-left text-xs transition ${
+                        className={`min-h-10 rounded-xl border px-2 py-1.5 text-left text-xs transition ${
                           selected
                             ? "border-brand-700 bg-white text-brand-900 shadow-sm"
-                            : "border-brand-100 bg-white/80 text-slate-700"
+                            : "border-brand-100 bg-white/80 text-slate-700 hover:border-brand-500"
                         }`}
                       >
                         <span className="block truncate font-semibold">{variant.label}</span>
@@ -319,7 +319,7 @@ export default function QuickAddonPanel({ onAddItem }) {
       </div>
 
       {!loading && !error && filteredAddons.length === 0 ? (
-        <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-600">
+        <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-600">
           No addon items found.
         </div>
       ) : null}
@@ -346,7 +346,7 @@ export default function QuickAddonPanel({ onAddItem }) {
                   setAddonForm((prev) => ({ ...prev, name: event.target.value }))
                 }
                 required
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"
                 placeholder="Extra cheese"
               />
             </label>
@@ -362,7 +362,7 @@ export default function QuickAddonPanel({ onAddItem }) {
                 min="0"
                 step="0.01"
                 required
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"
                 placeholder="30"
               />
             </label>
@@ -383,7 +383,7 @@ export default function QuickAddonPanel({ onAddItem }) {
                 }));
               }}
               required
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"
             >
               <option value="">Select category</option>
               {categories.map((category) => (
@@ -402,7 +402,7 @@ export default function QuickAddonPanel({ onAddItem }) {
                 setAddonForm((prev) => ({ ...prev, description: event.target.value }))
               }
               rows={2}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
+              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"
               placeholder="Optional"
             />
           </label>

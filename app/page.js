@@ -391,21 +391,21 @@ export default function Home() {
 
   return (
     <>
-      <main className="app-shell min-h-screen p-3 sm:p-5">
+      <main className="app-shell min-h-screen p-3 text-slate-800 sm:p-5">
         <div className="mx-auto w-full max-w-7xl">
-          <header className="mb-4 rounded-xl border border-brand-100 bg-white p-4 shadow-sm">
+          <header className="mb-4 rounded-2xl border border-white/80 bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur sm:p-5">
             <h1 className="text-2xl font-bold text-brand-900 sm:text-3xl">
               Balaji Ji Food Arts
             </h1>
           </header>
 
-          <section className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(390px,0.8fr)]">
+          <section className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.28fr)_minmax(360px,0.72fr)]">
             <DynamicMenuPanel onAddItem={addItem} hideAddonItems />
 
             <div className="space-y-4">
               <QuickAddonPanel onAddItem={addItem} />
 
-              <div className="rounded-xl border border-brand-100 bg-white p-4 shadow-sm">
+              <div className="rounded-2xl border border-white/80 bg-white/95 p-3 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur sm:p-4">
                 <h2 className="mb-3 text-xl font-semibold text-brand-900">Cart</h2>
                 {!cart.length && <p className="text-sm text-gray-500">No items in cart.</p>}
 
@@ -413,17 +413,17 @@ export default function Home() {
                   {cart.map((item) => (
                     <div
                       key={item._id}
-                      className="flex items-center justify-between rounded-lg border border-gray-200 p-3"
+                      className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <div>
+                      <div className="min-w-0">
                         <div className="font-medium text-gray-800">{item.name}</div>
                         <div className="text-sm text-gray-600">{"\u20B9"}{item.price} each</div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center justify-end gap-2">
                         <button
                           type="button"
                           onClick={() => changeQty(item._id, -1)}
-                          className="h-8 w-8 rounded border border-gray-300 text-lg"
+                          className="h-9 w-9 rounded-lg border border-slate-300 bg-white text-lg text-slate-700 shadow-sm transition hover:bg-slate-50"
                         >
                           -
                         </button>
@@ -431,14 +431,14 @@ export default function Home() {
                         <button
                           type="button"
                           onClick={() => changeQty(item._id, 1)}
-                          className="h-8 w-8 rounded border border-gray-300 text-lg"
+                          className="h-9 w-9 rounded-lg border border-slate-300 bg-white text-lg text-slate-700 shadow-sm transition hover:bg-slate-50"
                         >
                           +
                         </button>
                         <button
                           type="button"
                           onClick={() => removeItem(item._id)}
-                          className="rounded bg-red-50 px-2 py-1 text-xs text-red-700"
+                          className="h-9 rounded-lg bg-red-50 px-3 text-xs font-medium text-red-700 transition hover:bg-red-100"
                         >
                           Remove
                         </button>
@@ -447,7 +447,7 @@ export default function Home() {
                   ))}
                 </div>
 
-                <div className="no-print mt-4 rounded-lg bg-brand-50 p-3 text-sm">
+                <div className="no-print mt-4 rounded-xl border border-brand-100 bg-gradient-to-br from-brand-50 to-white p-3 text-sm shadow-inner sm:p-4">
                   <div className="mb-3 flex flex-wrap gap-3">
                     <div className="flex-1 min-w-[170px]">
                       <label
@@ -461,7 +461,7 @@ export default function Home() {
                         type="text"
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
-                        className="w-full rounded border border-slate-300 px-2 py-1 text-sm outline-none focus:border-brand-600"
+                        className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                         placeholder="Enter name"
                       />
                     </div>
@@ -481,7 +481,7 @@ export default function Home() {
                         aria-invalid={customerPhoneError ? "true" : "false"}
                         value={customerPhone}
                         onChange={(e) => updateCustomerPhone(e.target.value)}
-                        className={`w-full rounded border px-2 py-1 text-sm outline-none focus:border-brand-600 ${
+                        className={`h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 ${
                           customerPhoneError ? "border-red-400" : "border-slate-300"
                         }`}
                         placeholder="Enter phone"
@@ -510,8 +510,8 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="no-print mt-4 flex flex-wrap gap-2">
-                  <div className="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                <div className="no-print mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+                  <div className="col-span-2 flex flex-wrap items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm sm:col-span-1">
                     <span className="text-slate-700">Order:</span>
                     <div className="flex overflow-hidden rounded-md border border-slate-300">
                       {[
@@ -534,12 +534,12 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                  <div className="col-span-2 flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm sm:col-span-1">
                     <span className="text-slate-700">Sale Type:</span>
                     <select
                       value={saleType}
                       onChange={(event) => setSaleType(event.target.value)}
-                      className="rounded border border-slate-300 px-2 py-1 text-sm outline-none"
+                      className="h-8 rounded-lg border border-slate-300 bg-white px-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     >
                       <option value="ONLINE">ONLINE</option>
                       <option value="OFFLINE">OFFLINE</option>
@@ -549,7 +549,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={openDiscountPanel}
-                    className="rounded-lg border border-brand-500 px-4 py-2 text-brand-800"
+                    className="h-11 rounded-xl border border-brand-500 bg-white px-4 text-brand-800 shadow-sm transition hover:bg-brand-50 sm:w-auto"
                   >
                     Discount
                   </button>
@@ -558,7 +558,7 @@ export default function Home() {
                     type="button"
                     onClick={generateBill}
                     disabled={!cart.length}
-                    className="rounded-lg bg-brand-700 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50"
+                    className="h-11 rounded-xl bg-brand-700 px-4 font-semibold text-white shadow-sm transition hover:bg-brand-900 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Generate Bill
                   </button>
@@ -567,7 +567,7 @@ export default function Home() {
                     type="button"
                     onClick={printBill}
                     disabled={!bill}
-                    className="rounded-lg border border-brand-700 px-4 py-2 text-brand-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="h-11 rounded-xl border border-brand-700 bg-white px-4 text-brand-800 shadow-sm transition hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Print Bill
                   </button>
@@ -576,12 +576,12 @@ export default function Home() {
                     type="button"
                     onClick={downloadPdf}
                     disabled={!bill || isPdfGenerating}
-                    className="rounded-lg border border-gray-400 px-4 py-2 text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="h-11 rounded-xl border border-slate-400 bg-white px-4 text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isPdfGenerating ? "Generating PDF..." : "Download PDF"}
                   </button>
 
-                  <div className="flex min-w-[260px] flex-wrap items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                  <div className="col-span-2 flex w-full flex-col gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm sm:w-auto sm:min-w-[300px] sm:flex-row sm:flex-wrap sm:items-center">
                     <label className="text-slate-700" htmlFor="billBusinessSelect">
                       Bill Name:
                     </label>
@@ -589,7 +589,7 @@ export default function Home() {
                       id="billBusinessSelect"
                       value={selectedBusinessId}
                       onChange={(event) => setSelectedBusinessId(event.target.value)}
-                      className="min-w-[160px] rounded border border-slate-300 px-2 py-1 text-sm outline-none"
+                      className="h-9 w-full rounded-lg border border-slate-300 bg-white px-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 sm:w-auto sm:min-w-[170px]"
                     >
                       {BUSINESS_PROFILES.map((profile) => (
                         <option key={profile.id} value={profile.id}>
@@ -622,7 +622,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={clearOrder}
-                    className="rounded-lg border border-red-300 px-4 py-2 text-red-700"
+                    className="col-span-2 h-11 rounded-xl border border-red-300 bg-white px-4 text-red-700 shadow-sm transition hover:bg-red-50 sm:col-span-1"
                   >
                     Clear Cart
                   </button>
@@ -632,12 +632,14 @@ export default function Home() {
                   <h3 className="no-print mb-2 text-lg font-semibold text-brand-900">
                     Receipt Preview
                   </h3>
-                  <ThermalReceipt
-                    ref={receiptRef}
-                    bill={bill}
-                    restaurant={receiptRestaurant}
-                    className="thermal-screen-receipt"
-                  />
+                  <div className="overflow-x-auto rounded-xl bg-slate-50 p-3">
+                    <ThermalReceipt
+                      ref={receiptRef}
+                      bill={bill}
+                      restaurant={receiptRestaurant}
+                      className="thermal-screen-receipt"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -676,7 +678,7 @@ export default function Home() {
                   setDiscountInput(event.target.value);
                   if (discountError) setDiscountError("");
                 }}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-600"
+                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"
                 placeholder="Enter discount %"
               />
               {discountError ? <p className="mt-2 text-xs text-red-600">{discountError}</p> : null}
