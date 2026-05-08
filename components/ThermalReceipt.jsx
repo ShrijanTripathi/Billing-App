@@ -50,12 +50,30 @@ function getCustomerName(bill) {
   return bill?.customerName || bill?.customer || bill?.name || "";
 }
 
+function getCustomerPhone(bill) {
+  return bill?.customerPhone || bill?.phone || bill?.mobile || "";
+}
+
 function getCashierName(bill) {
   return bill?.cashierName || bill?.cashier || bill?.createdBy || "Counter";
 }
 
 function getBillCode(bill) {
   return bill?.billNo || bill?.billNumber || bill?.invoiceNo || bill?.id || "";
+}
+
+function getReceiptBusinessName(bill, restaurant) {
+  return bill?.businessName || restaurant?.name || "";
+}
+
+function getReceiptGstin(bill, restaurant) {
+  if (bill && Object.prototype.hasOwnProperty.call(bill, "gstin")) {
+    return bill.gstin || "";
+  }
+  if (bill && Object.prototype.hasOwnProperty.call(bill, "businessGstin")) {
+    return bill.businessGstin || "";
+  }
+  return restaurant?.gstin || "";
 }
 
 function getLineTotal(item) {
@@ -134,7 +152,10 @@ const ThermalReceipt = forwardRef(function ThermalReceipt(
     bill?.totalQty ?? items.reduce((sum, item) => sum + Number(item?.qty || 0), 0)
   );
   const customerName = getCustomerName(bill);
+  const customerPhone = getCustomerPhone(bill);
   const orderType = normalizeOrderType(bill);
+  const receiptBusinessName = getReceiptBusinessName(bill, restaurant);
+  const receiptGstin = getReceiptGstin(bill, restaurant);
 
   return (
     <section
@@ -144,7 +165,10 @@ const ThermalReceipt = forwardRef(function ThermalReceipt(
     >
       <article className="thermal-receipt">
         <header className="receipt-header">
-          <div className="receipt-brand">{restaurant.name}</div>
+          <div className="receipt-brand">{receiptBusinessName}</div>
+          {receiptGstin ? (
+            <div className="receipt-header-line">GSTIN NO: {receiptGstin}</div>
+          ) : null}
           {restaurant.addressLines?.map((line) => (
             <div className="receipt-header-line" key={line}>
               {line}
@@ -166,7 +190,12 @@ const ThermalReceipt = forwardRef(function ThermalReceipt(
           <div className="receipt-empty">Generate a bill to view thermal receipt.</div>
         ) : (
           <>
-            {customerName ? <div className="receipt-customer">Name: {customerName}</div> : null}
+            {customerName || customerPhone ? (
+              <div className="receipt-customer">
+                {customerName ? <div>Name: {customerName}</div> : null}
+                {customerPhone ? <div>Phone: {customerPhone}</div> : null}
+              </div>
+            ) : null}
             <div className="receipt-order-type">{orderType}</div>
 
             <div className="receipt-info-grid">

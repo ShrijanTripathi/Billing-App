@@ -28,6 +28,43 @@ const RESTAURANT = {
   footerText: "Thanks For Visit !!",
 };
 
+const BUSINESS_PROFILES = [
+  {
+    id: "balaji-soya-chaap",
+    name: "Balaji Soya Chaap",
+    gstin: "03BJFPK1405G1ZY",
+  },
+  {
+    id: "balaji-foods-arts",
+    name: "Balaji Foods Arts",
+    gstin: "03ICOPK2734K1ZB",
+  },
+];
+
+const DEFAULT_BUSINESS_ID = "balaji-foods-arts";
+
+function getBusinessProfile(profileId) {
+  return (
+    BUSINESS_PROFILES.find((profile) => profile.id === profileId) ||
+    BUSINESS_PROFILES.find((profile) => profile.id === DEFAULT_BUSINESS_ID) ||
+    BUSINESS_PROFILES[0]
+  );
+}
+
+function normalizeCustomerPhone(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  const withoutCountryCode =
+    digits.length > 10 && digits.startsWith("91") ? digits.slice(2) : digits;
+  return withoutCountryCode.slice(0, 10);
+}
+
+function getCustomerPhoneError(phone) {
+  if (!phone) return "";
+  if (!/^\d{10}$/.test(phone)) return "Enter a valid 10 digit Indian mobile number.";
+  if (!/^[6-9]/.test(phone)) return "Indian mobile number should start with 6, 7, 8 or 9.";
+  return "";
+}
+
 function formatDateTime(date) {
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -55,11 +92,26 @@ export default function Home() {
   const [saleType, setSaleType] = useState("OFFLINE");
   const [orderType, setOrderType] = useState("TAKE_AWAY");
   const [bill, setBill] = useState(null);
+  const [selectedBusinessId, setSelectedBusinessId] = useState(DEFAULT_BUSINESS_ID);
+  const [printGstNo, setPrintGstNo] = useState(false);
 
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+  const [customerPhoneError, setCustomerPhoneError] = useState("");
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
   const receiptRef = useRef(null);
+  const selectedBusiness = useMemo(
+    () => getBusinessProfile(selectedBusinessId),
+    [selectedBusinessId]
+  );
+  const receiptRestaurant = useMemo(
+    () => ({
+      ...RESTAURANT,
+      name: selectedBusiness.name,
+      gstin: printGstNo ? selectedBusiness.gstin : "",
+    }),
+    [selectedBusiness, printGstNo]
+  );
 
   const totals = useMemo(() => calculateBillTotals(cart, discountPercent), [cart, discountPercent]);
   const discountPreviewPercent = useMemo(() => clampDiscountPercent(discountInput), [discountInput]);
@@ -74,8 +126,8 @@ export default function Home() {
       const savedBill = localStorage.getItem("balaji_last_bill");
       const savedDiscount = localStorage.getItem("balaji_discount_percent");
       const savedOrderType = localStorage.getItem("balaji_order_type");
-      const savedCustomerName = localStorage.getItem("balaji_customer_name");
-      const savedCustomerPhone = localStorage.getItem("balaji_customer_phone");
+      const savedBusinessId = localStorage.getItem("balaji_bill_business_id");
+      const savedPrintGstNo = localStorage.getItem("balaji_print_gst_no");
 
       if (savedCart) setCart(JSON.parse(savedCart));
       if (savedBill) setBill(JSON.parse(savedBill));
@@ -88,8 +140,14 @@ export default function Home() {
         setOrderType(savedOrderType);
       }
 
-      if (savedCustomerName) setCustomerName(savedCustomerName);
-      if (savedCustomerPhone) setCustomerPhone(savedCustomerPhone);
+      localStorage.setItem("balaji_customer_name", "");
+      localStorage.setItem("balaji_customer_phone", "");
+      if (BUSINESS_PROFILES.some((profile) => profile.id === savedBusinessId)) {
+        setSelectedBusinessId(savedBusinessId);
+      }
+      if (savedPrintGstNo !== null) {
+        setPrintGstNo(savedPrintGstNo === "true");
+      }
     } catch {
       setCart([]);
       setBill(null);
@@ -98,24 +156,11 @@ export default function Home() {
       setOrderType("TAKE_AWAY");
       setCustomerName("");
       setCustomerPhone("");
+      setCustomerPhoneError("");
+      setSelectedBusinessId(DEFAULT_BUSINESS_ID);
+      setPrintGstNo(false);
     }
   }, []);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem("balaji_customer_name", String(customerName || ""));
-    } catch {
-      // Ignore storage write failures.
-    }
-  }, [customerName]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem("balaji_customer_phone", String(customerPhone || ""));
-    } catch {
-      // Ignore storage write failures.
-    }
-  }, [customerPhone]);
 
   useEffect(() => {
     try {
@@ -140,6 +185,22 @@ export default function Home() {
       // Ignore storage write failures.
     }
   }, [orderType]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("balaji_bill_business_id", selectedBusinessId);
+    } catch {
+      // Ignore storage write failures.
+    }
+  }, [selectedBusinessId]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("balaji_print_gst_no", String(printGstNo));
+    } catch {
+      // Ignore storage write failures.
+    }
+  }, [printGstNo]);
 
   const saveBill = (nextBill) => {
     setBill(nextBill);
@@ -185,12 +246,31 @@ export default function Home() {
 
     setCustomerName("");
     setCustomerPhone("");
+    setCustomerPhoneError("");
     try {
       localStorage.setItem("balaji_customer_name", "");
       localStorage.setItem("balaji_customer_phone", "");
     } catch {
       // Ignore storage write failures.
     }
+  };
+
+  const clearCustomerInputs = () => {
+    setCustomerName("");
+    setCustomerPhone("");
+    setCustomerPhoneError("");
+    try {
+      localStorage.setItem("balaji_customer_name", "");
+      localStorage.setItem("balaji_customer_phone", "");
+    } catch {
+      // Ignore storage write failures.
+    }
+  };
+
+  const updateCustomerPhone = (value) => {
+    const nextPhone = normalizeCustomerPhone(value);
+    setCustomerPhone(nextPhone);
+    setCustomerPhoneError(getCustomerPhoneError(nextPhone));
   };
 
   const openDiscountPanel = () => {
@@ -223,6 +303,15 @@ export default function Home() {
 
   const generateBill = () => {
     if (!cart.length) return;
+    const sanitizedCustomerPhone = normalizeCustomerPhone(customerPhone);
+    const phoneError = getCustomerPhoneError(sanitizedCustomerPhone);
+    if (phoneError) {
+      setCustomerPhone(sanitizedCustomerPhone);
+      setCustomerPhoneError(phoneError);
+      return;
+    }
+    setCustomerPhoneError("");
+
     const now = new Date();
     const { date, time } = formatDateTime(now);
     let nextToken = 1;
@@ -235,6 +324,9 @@ export default function Home() {
     }
 
     const snapshot = {
+      businessId: selectedBusiness.id,
+      businessName: selectedBusiness.name,
+      gstin: printGstNo ? selectedBusiness.gstin : "",
       saleType,
       orderType,
       billNo: randomNumber(5),
@@ -244,7 +336,7 @@ export default function Home() {
       billedAt: now.toISOString(),
 
       customerName: String(customerName || "").trim() || "",
-      customerPhone: String(customerPhone || "").trim() || "",
+      customerPhone: sanitizedCustomerPhone,
 
       items: cart.map((item) => ({
         itemId: item.itemId || item._id,
@@ -268,6 +360,8 @@ export default function Home() {
 
   const printBill = () => {
     if (!bill) return;
+    const clearAfterPrint = () => clearCustomerInputs();
+    window.addEventListener("afterprint", clearAfterPrint, { once: true });
     requestAnimationFrame(() => window.print());
   };
 
@@ -330,7 +424,9 @@ export default function Home() {
                           type="button"
                           onClick={() => changeQty(item._id, -1)}
                           className="h-8 w-8 rounded border border-gray-300 text-lg"
-                        ></button>
+                        >
+                          -
+                        </button>
                         <span className="w-6 text-center font-medium">{item.qty}</span>
                         <button
                           type="button"
@@ -380,11 +476,19 @@ export default function Home() {
                         id="customerPhoneInput"
                         type="tel"
                         inputMode="tel"
+                        maxLength={14}
+                        pattern="[6-9][0-9]{9}"
+                        aria-invalid={customerPhoneError ? "true" : "false"}
                         value={customerPhone}
-                        onChange={(e) => setCustomerPhone(e.target.value)}
-                        className="w-full rounded border border-slate-300 px-2 py-1 text-sm outline-none focus:border-brand-600"
+                        onChange={(e) => updateCustomerPhone(e.target.value)}
+                        className={`w-full rounded border px-2 py-1 text-sm outline-none focus:border-brand-600 ${
+                          customerPhoneError ? "border-red-400" : "border-slate-300"
+                        }`}
                         placeholder="Enter phone"
                       />
+                      {customerPhoneError ? (
+                        <p className="mt-1 text-xs text-red-600">{customerPhoneError}</p>
+                      ) : null}
                     </div>
                   </div>
 
@@ -477,6 +581,44 @@ export default function Home() {
                     {isPdfGenerating ? "Generating PDF..." : "Download PDF"}
                   </button>
 
+                  <div className="flex min-w-[260px] flex-wrap items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                    <label className="text-slate-700" htmlFor="billBusinessSelect">
+                      Bill Name:
+                    </label>
+                    <select
+                      id="billBusinessSelect"
+                      value={selectedBusinessId}
+                      onChange={(event) => setSelectedBusinessId(event.target.value)}
+                      className="min-w-[160px] rounded border border-slate-300 px-2 py-1 text-sm outline-none"
+                    >
+                      {BUSINESS_PROFILES.map((profile) => (
+                        <option key={profile.id} value={profile.id}>
+                          {profile.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <label
+                      className="flex items-center gap-2 whitespace-nowrap text-slate-700"
+                      htmlFor="printGstNoInput"
+                    >
+                      <input
+                        id="printGstNoInput"
+                        type="checkbox"
+                        checked={printGstNo}
+                        onChange={(event) => setPrintGstNo(event.target.checked)}
+                        className="h-4 w-4 accent-brand-700"
+                      />
+                      <span>Print GST No.</span>
+                    </label>
+
+                    {printGstNo ? (
+                      <span className="basis-full text-xs text-slate-500">
+                        GSTIN: {selectedBusiness.gstin}
+                      </span>
+                    ) : null}
+                  </div>
+
                   <button
                     type="button"
                     onClick={clearOrder}
@@ -493,7 +635,7 @@ export default function Home() {
                   <ThermalReceipt
                     ref={receiptRef}
                     bill={bill}
-                    restaurant={RESTAURANT}
+                    restaurant={receiptRestaurant}
                     className="thermal-screen-receipt"
                   />
                 </div>
@@ -569,7 +711,7 @@ export default function Home() {
       <div className="thermal-print-area" aria-hidden="true">
         <ThermalReceipt
           bill={bill}
-          restaurant={RESTAURANT}
+          restaurant={receiptRestaurant}
           className="thermal-print-receipt"
         />
       </div>
