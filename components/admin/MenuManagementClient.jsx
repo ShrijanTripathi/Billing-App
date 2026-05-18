@@ -423,6 +423,33 @@ export default function MenuManagementClient() {
     openEditItemModal(item);
   };
 
+  const toggleCategoryFlag = async (category) => {
+    setError("");
+
+    try {
+      const payload = {
+        name: category.name,
+        sortOrder: Number(category.sortOrder || 0),
+        isActive: !category.isActive,
+      };
+
+      await updateCategoryV2(category.id, payload);
+
+      setCategories((prev) =>
+        prev.map((cat) =>
+          cat.id === category.id
+            ? {
+                ...cat,
+                isActive: !cat.isActive,
+              }
+            : cat,
+        ),
+      );
+    } catch (requestError) {
+      setError(requestError.message || "Unable to update category.");
+    }
+  };
+
   const handleToggleItemAction = (event, item) => {
     event.preventDefault();
     event.stopPropagation();
@@ -461,16 +488,14 @@ export default function MenuManagementClient() {
     }));
   };
 
-const updateAddon = (addonId, key, value) => {
-  setItemForm((prev) => ({
-    ...prev,
-    addons: prev.addons.map((addon) =>
-      addon.id === addonId
-        ? { ...addon, [key]: value }
-        : addon,
-    ),
-  }));
-};
+  const updateAddon = (addonId, key, value) => {
+    setItemForm((prev) => ({
+      ...prev,
+      addons: prev.addons.map((addon) =>
+        addon.id === addonId ? { ...addon, [key]: value } : addon,
+      ),
+    }));
+  };
 
   const applyVariantPreset = () => {
     setItemForm((prev) => ({
@@ -740,19 +765,7 @@ const updateAddon = (addonId, key, value) => {
                 </button>
                 <button
                   type="button"
-                  onClick={() =>
-                    updateCategoryV2(category.id, {
-                      name: category.name,
-                      sortOrder: Number(category.sortOrder || 0),
-                      isActive: category.isActive === false,
-                    })
-                      .then(() => loadCategories())
-                      .catch((requestError) =>
-                        setError(
-                          requestError.message || "Unable to update category.",
-                        ),
-                      )
-                  }
+                  onClick={() => toggleCategoryFlag(category)}
                   className="rounded border border-emerald-300 px-2 py-1 text-xs text-emerald-700"
                 >
                   Toggle Active

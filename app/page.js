@@ -94,7 +94,8 @@ export default function Home() {
   const [bill, setBill] = useState(null);
   const [selectedBusinessId, setSelectedBusinessId] = useState(DEFAULT_BUSINESS_ID);
   const [printGstNo, setPrintGstNo] = useState(false);
-
+  
+  const [customerDescription, setCustomerDescription] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerPhoneError, setCustomerPhoneError] = useState("");
@@ -156,6 +157,7 @@ export default function Home() {
       setOrderType("TAKE_AWAY");
       setCustomerName("");
       setCustomerPhone("");
+      setCustomerDescription("");
       setCustomerPhoneError("");
       setSelectedBusinessId(DEFAULT_BUSINESS_ID);
       setPrintGstNo(false);
@@ -247,6 +249,7 @@ export default function Home() {
     setCustomerName("");
     setCustomerPhone("");
     setCustomerPhoneError("");
+    setCustomerDescription("");
     try {
       localStorage.setItem("balaji_customer_name", "");
       localStorage.setItem("balaji_customer_phone", "");
@@ -337,6 +340,7 @@ export default function Home() {
 
       customerName: String(customerName || "").trim() || "",
       customerPhone: sanitizedCustomerPhone,
+      customerDescription: String(customerDescription || "").trim() || "",
 
       items: cart.map((item) => ({
         itemId: item.itemId || item._id,
@@ -489,6 +493,23 @@ export default function Home() {
                       {customerPhoneError ? (
                         <p className="mt-1 text-xs text-red-600">{customerPhoneError}</p>
                       ) : null}
+                    </div>
+
+                    <div className="flex-1 min-w-[170px]">
+                      <label
+                        className="mb-1 block text-xs font-medium text-slate-700"
+                        htmlFor="customerDescriptionInput"
+                      >
+                        Description
+                      </label>
+                      <input
+                        id="customerDescriptionInput"
+                        type="text"
+                        value={customerDescription}
+                        onChange={(e) => setCustomerDescription(e.target.value)}
+                        className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+                        placeholder="Enter description"
+                      />
                     </div>
                   </div>
 

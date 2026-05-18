@@ -50,6 +50,10 @@ function getCustomerName(bill) {
   return bill?.customerName || bill?.customer || bill?.name || "";
 }
 
+function getCustomerDescription(bill) {
+  return bill?.customerDescription || "";
+}
+
 function getCustomerPhone(bill) {
   return bill?.customerPhone || bill?.phone || bill?.mobile || "";
 }
@@ -153,6 +157,7 @@ const ThermalReceipt = forwardRef(function ThermalReceipt(
   );
   const customerName = getCustomerName(bill);
   const customerPhone = getCustomerPhone(bill);
+  const customerDescription = getCustomerDescription(bill);
   const orderType = normalizeOrderType(bill);
   const receiptBusinessName = getReceiptBusinessName(bill, restaurant);
   const receiptGstin = getReceiptGstin(bill, restaurant);
@@ -194,6 +199,7 @@ const ThermalReceipt = forwardRef(function ThermalReceipt(
               <div className="receipt-customer">
                 {customerName ? <div>Name: {customerName}</div> : null}
                 {customerPhone ? <div>Phone: {customerPhone}</div> : null}
+                {customerDescription ? <div>Description: {customerDescription}</div> : null}
               </div>
             ) : null}
             <div className="receipt-order-type">{orderType}</div>
