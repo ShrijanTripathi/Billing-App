@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { apiRequest } from "../services/apiClient";
+import { sendToPrinter } from "../services/printApi";
 import ThermalReceipt from "../components/ThermalReceipt";
 import DynamicMenuPanel from "../components/pos/DynamicMenuPanel";
 import QuickAddonPanel from "../components/pos/QuickAddonPanel";
@@ -100,7 +101,10 @@ export default function Home() {
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerPhoneError, setCustomerPhoneError] = useState("");
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
   const receiptRef = useRef(null);
+  const printReceiptRef = useRef(null);
+  const isPrintingRef = useRef(false);
   const selectedBusiness = useMemo(
     () => getBusinessProfile(selectedBusinessId),
     [selectedBusinessId]
@@ -362,11 +366,46 @@ export default function Home() {
     setOrderType("TAKE_AWAY");
   };
 
-  const printBill = () => {
-    if (!bill) return;
-    const clearAfterPrint = () => clearCustomerInputs();
-    window.addEventListener("afterprint", clearAfterPrint, { once: true });
-    requestAnimationFrame(() => window.print());
+  const printBill = async () => {
+    const printableReceipt = printReceiptRef.current || receiptRef.current;
+    if (!bill || !printableReceipt || isPrintingRef.current) return;
+
+    try {
+      isPrintingRef.current = true;
+      setIsPrinting(true);
+      console.log('[PRINT BILL] Starting multi-printer print job...');
+
+      // Call sendToPrinter API (handles 4 copies: 2x Main + 1x LAN1 + 1x LAN2)
+      const printResult = await sendToPrinter(printableReceipt, {
+        billNo: bill.billNo,
+        tokenNo: bill.tokenNo,
+      });
+
+      if (printResult?.partialSuccess || printResult?.success === false) {
+        const failedPrinters = (printResult.errors || [])
+          .map((item) => item.printerName || item.printer)
+          .filter(Boolean)
+          .join(", ");
+
+        alert(
+          `Some printers failed${failedPrinters ? `: ${failedPrinters}` : ""}. ` +
+            "Successful printers may already have printed, so press Print Bill again only if duplicate copies are acceptable."
+        );
+        return;
+      }
+
+      console.log('[PRINT SUCCESS] Bill printed to all printers');
+
+      // Clear customer inputs after successful print
+      clearCustomerInputs();
+
+    } catch (error) {
+      console.error('[PRINT ERROR]', error.message);
+      alert(`Print failed: ${error.message}`);
+    } finally {
+      isPrintingRef.current = false;
+      setIsPrinting(false);
+    }
   };
 
   const downloadPdf = async () => {
@@ -587,16 +626,16 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={printBill}
-                    disabled={!bill}
+                    disabled={!bill || isPrinting}
                     className="h-11 rounded-xl border border-brand-700 bg-white px-4 text-brand-800 shadow-sm transition hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Print Bill
+                    {isPrinting ? "Printing..." : "Print Bill"}
                   </button>
 
                   <button
                     type="button"
                     onClick={downloadPdf}
-                    disabled={!bill || isPdfGenerating}
+                    disabled={!bill || isPdfGenerating || isPrinting}
                     className="h-11 rounded-xl border border-slate-400 bg-white px-4 text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isPdfGenerating ? "Generating PDF..." : "Download PDF"}
@@ -733,6 +772,7 @@ export default function Home() {
 
       <div className="thermal-print-area" aria-hidden="true">
         <ThermalReceipt
+          ref={printReceiptRef}
           bill={bill}
           restaurant={receiptRestaurant}
           className="thermal-print-receipt"

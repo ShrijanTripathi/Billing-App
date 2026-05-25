@@ -1,277 +1,53 @@
-// /**
-//  * Print API Service
-//  * Handles communication with the local thermal print service
-//  */
 
-// const PRINT_SERVICE_URL = 'http://localhost:5000';
-
-// /**
-//  * Sends bill data to thermal printer service
-//  * @param {object} bill - Bill object with: billNo, businessName, tokenNo, date, time, items, grandTotal
-//  * @returns {Promise<{success: boolean, message: string, results: array}>}
-//  */
-// export async function sendToPrinter(bill) {
-//   if (!bill) {
-//     throw new Error('Bill data is required');
-//   }
-
-//   // Map bill structure to printer format
-//   const printData = {
-//     billNo: bill.billNo,
-//     businessName: bill.businessName,
-//     tokenNo: bill.tokenNo,
-//     date: bill.date,
-//     time: bill.time,
-//     items: (bill.items || []).map(item => ({
-//       name: item.name,
-//       qty: item.qty,
-//       price: item.price
-//     })),
-//     grandTotal: bill.grandTotal
-//   };
-
-//   try {
-//     const response = await fetch(`${PRINT_SERVICE_URL}/print`, {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json'
-//       },
-//       body: JSON.stringify(printData)
-//     });
-
-//     if (!response.ok) {
-//       throw new Error(`Print service error: ${response.statusText}`);
-//     }
-
-//     const result = await response.json();
-//     return result;
-
-//   } catch (error) {
-//     throw new Error(
-//       error.message.includes('Failed to fetch')
-//         ? 'Print service not running. Start it with: node print-service/server.js'
-//         : error.message
-//     );
-//   }
-// }
-
-// /**
-//  * Tests printer connectivity
-//  * @returns {Promise<{success: boolean, message: string}>}
-//  */
-// export async function testPrinter() {
-//   try {
-//     const response = await fetch(`${PRINT_SERVICE_URL}/test-print`, {
-//       method: 'GET',
-//       headers: {
-//         'Content-Type': 'application/json'
-//       }
-//     });
-
-//     if (!response.ok) {
-//       throw new Error(`Test failed: ${response.statusText}`);
-//     }
-
-//     const result = await response.json();
-//     return result;
-
-//   } catch (error) {
-//     throw new Error(
-//       error.message.includes('Failed to fetch')
-//         ? 'Print service not reachable at http://localhost:5000'
-//         : error.message
-//     );
-//   }
-// }
-
-// /**
-//  * Checks print service health
-//  * @returns {Promise<{status: string, service: string}>}
-//  */
-// export async function checkPrintService() {
-//   try {
-//     const response = await fetch(`${PRINT_SERVICE_URL}/`, {
-//       method: 'GET'
-//     });
-
-//     if (!response.ok) {
-//       throw new Error('Print service not responding');
-//     }
-
-//     return await response.json();
-
-//   } catch (error) {
-//     throw new Error('Print service unreachable at http://localhost:5000');
-//   }
-// }
-
-
-// import html2canvas from "html2canvas";
-// import jsPDF from "jspdf";
-// import printJS from "print-js";
-
-// export async function sendToPrinter(receiptElement) {
-//   if (!receiptElement) {
-//     throw new Error("Receipt element missing");
-//   }
-
-//   // Convert receipt HTML to image
-//   const canvas = await html2canvas(receiptElement, {
-//     scale: 3,
-//     backgroundColor: "#ffffff",
-//   });
-
-//   const imgData = canvas.toDataURL("image/png");
-
-//   // Thermal width
-//   const pdf = new jsPDF({
-//     orientation: "portrait",
-//     unit: "mm",
-//     format: [80, 200],
-//   });
-
-//   const pdfWidth = 80;
-//   const pdfHeight =
-//     (canvas.height * pdfWidth) / canvas.width;
-
-//   pdf.addImage(
-//     imgData,
-//     "PNG",
-//     0,
-//     0,
-//     pdfWidth,
-//     pdfHeight
-//   );
-
-//   const blob = pdf.output("blob");
-
-//   const blobUrl = URL.createObjectURL(blob);
-
-//   printJS({
-//     printable: blobUrl,
-//     type: "pdf",
-//     showModal: true,
-//   });
-
-//   return {
-//     success: true,
-//     message: "Print started",
-//   };
-// }
-
-// const PRINT_SERVICE_URL = "http://localhost:5000";
-
-// export async function sendToPrinter(bill) {
-//   if (!bill) {
-//     throw new Error("Bill data missing");
-//   }
-
-//   try {
-//     const response = await fetch(
-//       `${PRINT_SERVICE_URL}/print`,
-//       {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(bill),
-//       }
-//     );
-
-//     const result = await response.json();
-
-//     if (!response.ok) {
-//       throw new Error(
-//         result.error || "Print failed"
-//       );
-//     }
-
-//     return result;
-
-//   } catch (error) {
-//     throw new Error(error.message);
-//   }
-// }
-
-// export async function testPrinter() {
-//   try {
-//     const response = await fetch(
-//       `${PRINT_SERVICE_URL}/test-print`
-//     );
-
-//     return await response.json();
-
-//   } catch (error) {
-//     throw new Error(error.message);
-//   }
-// }
-
-// import html2canvas from "html2canvas";
-// import jsPDF from "jspdf";
-
-// const PRINT_SERVICE_URL = "http://localhost:5000";
-
-// export async function sendToPrinter(receiptElement) {
-//   try {
-//     // Capture receipt HTML
-//     const canvas = await html2canvas(receiptElement, {
-//       scale: 3,
-//       useCORS: true,
-//       backgroundColor: "#ffffff",
-//     });
-
-//     const imgData = canvas.toDataURL("image/png");
-
-//     // Thermal receipt width
-//     const pdf = new jsPDF({
-//       orientation: "portrait",
-//       unit: "mm",
-//       format: [80, 250],
-//     });
-
-//     const pdfWidth = 80;
-//     const pdfHeight =
-//       (canvas.height * pdfWidth) / canvas.width;
-
-//     pdf.addImage(
-//       imgData,
-//       "PNG",
-//       0,
-//       0,
-//       pdfWidth,
-//       pdfHeight
-//     );
-
-//     // Convert PDF to base64
-//     const pdfBase64 = pdf.output("datauristring");
-
-//     // Send to backend
-//     const response = await fetch(
-//       `${PRINT_SERVICE_URL}/print`,
-//       {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify({
-//           pdf: pdfBase64,
-//         }),
-//       }
-//     );
-
-//     return await response.json();
-
-//   } catch (error) {
-//     throw new Error(error.message);
-//   }
-// }
 
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 const PRINT_SERVICE_URL = "http://localhost:5000";
+const RECEIPT_PDF_WIDTH_MM = 80;
+const HIGH_QUALITY_CAPTURE_SCALE = 2;
 
-export async function sendToPrinter(receiptElement) {
+function createPrintJobId(printMeta) {
+  const billNo = String(printMeta?.billNo || "bill").replace(/[^a-zA-Z0-9_-]/g, "");
+  const suffix = Math.random().toString(36).slice(2, 8);
+  return `${billNo}-${Date.now()}-${suffix}`;
+}
+
+function formatPrinterErrors(errors) {
+  if (!Array.isArray(errors) || errors.length === 0) return "";
+
+  return errors
+    .map((item) => {
+      const printer = item.printerName || item.printer || "Unknown printer";
+      return `${printer}: ${item.error || item.message || "failed"}`;
+    })
+    .join("; ");
+}
+
+function formatPrinterConfigIssues(errorData) {
+  const missing = (errorData?.missingPrinters || [])
+    .map((item) => item.printerName || item.key)
+    .filter(Boolean);
+  const blocked = (errorData?.blockedPrinters || [])
+    .map((item) => {
+      const printer = item.printerName || item.key;
+      return item.driverName ? `${printer} (${item.driverName})` : printer;
+    })
+    .filter(Boolean);
+  const duplicateTargets = (errorData?.duplicatePrinterTargets || [])
+    .map((target) => {
+      const printers = (target.printers || [])
+        .map((printer) => printer.printerName || printer.key)
+        .filter(Boolean)
+        .join(", ");
+      return printers ? `${printers} share ${target.target}` : target.target;
+    })
+    .filter(Boolean);
+
+  return [...missing, ...blocked, ...duplicateTargets].join("; ");
+}
+
+export async function sendToPrinter(receiptElement, printMeta = {}) {
   try {
     if (!receiptElement) {
       throw new Error("Receipt element missing");
@@ -289,18 +65,22 @@ export async function sendToPrinter(receiptElement) {
       height: receiptElement.scrollHeight,
     });
 
-    // WAIT FOR CSS TO FULLY LOAD
-    await new Promise((resolve) =>
-      setTimeout(resolve, 1500)
-    );
+    // Wait for browser font/layout work to settle before rasterizing the receipt.
+    if (document.fonts?.ready) {
+      await document.fonts.ready;
+    }
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
-    // CAPTURE RECEIPT - SIMPLE AND RELIABLE
+    // Capture at print-friendly density so text remains readable on thermal printers.
     const canvas = await html2canvas(receiptElement, {
-      scale: 2,
+      scale: HIGH_QUALITY_CAPTURE_SCALE,
       useCORS: true,
       backgroundColor: "#ffffff",
       logging: false,
       allowTaint: true,
+      imageTimeout: 0,
+      windowWidth: Math.ceil(receiptElement.scrollWidth),
+      windowHeight: Math.ceil(receiptElement.scrollHeight),
     });
 
     console.log('[CANVAS CREATED]', {
@@ -311,7 +91,7 @@ export async function sendToPrinter(receiptElement) {
     const imgData = canvas.toDataURL("image/png");
 
     // CREATE PDF WITH AUTO HEIGHT
-    const pdfWidth = 80;
+    const pdfWidth = RECEIPT_PDF_WIDTH_MM;
     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
     const pdf = new jsPDF({
@@ -327,16 +107,22 @@ export async function sendToPrinter(receiptElement) {
     
     console.log('[PDF SIZE]', (pdfBase64.length / 1024 / 1024).toFixed(2), 'MB');
 
-    // SEND TO BACKEND
+    const printJobId = createPrintJobId(printMeta);
+
+    // SEND TO BACKEND (Multi-Printer: 2x Main + 1x LAN1 + 1x LAN2 = 4 copies)
     const response = await fetch(
-      `${PRINT_SERVICE_URL}/print`,
+      `${PRINT_SERVICE_URL}/print-multiple`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "X-Print-Job-Id": printJobId,
         },
         body: JSON.stringify({
           pdf: pdfBase64,
+          jobId: printJobId,
+          billNo: printMeta?.billNo || "",
+          tokenNo: printMeta?.tokenNo || "",
         }),
       }
     );
@@ -350,7 +136,17 @@ export async function sendToPrinter(receiptElement) {
       try {
         if (contentType && contentType.includes("application/json")) {
           const errorData = await response.json();
-          errorMessage = errorData.details || errorData.error || errorMessage;
+          const printerErrors = formatPrinterErrors(errorData.errors);
+          const printerConfigIssues = formatPrinterConfigIssues(errorData);
+          errorMessage =
+            errorData.details ||
+            errorData.error ||
+            errorData.message ||
+            errorMessage;
+          const extraDetails = [printerErrors, printerConfigIssues].filter(Boolean).join("; ");
+          if (extraDetails) {
+            errorMessage = `${errorMessage}: ${extraDetails}`;
+          }
         } else {
           errorMessage = "Print service error - please restart it with: node print-service/server.js";
         }
