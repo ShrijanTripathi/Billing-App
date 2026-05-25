@@ -2,7 +2,7 @@
 
 ## Overview
 
-This print service handles silent thermal printing for the Balaji Bill Generator POS system. It communicates with thermal printers via ESC/POS protocol over USB and TCP/IP connections.
+This print service handles silent thermal printing for the Balaji Bill Generator POS system. The browser sends a PDF receipt to the local print service, and the service prints it through Windows printer queues.
 
 ## Architecture
 
@@ -16,20 +16,29 @@ Thermal Printers (USB + Network)
 
 ## Printer Configuration
 
-### POS-X THERMAL PRINTER (USB)
-- **Address**: `printer:POS-X`
-- **Type**: EPSON Thermal Printer
-- **Windows Setup**: Add printer named "POS-X" in Windows Printer Settings
+### Required Windows printer queues
+Every physical printer must be installed in Windows with a driver that can render PDF/image jobs. Ping only confirms the printer is on the network; it does not confirm the driver can print this app's PDF receipt.
 
-### KITCHEN PRINTER 1 (Network)
-- **Address**: `tcp://192.168.1.16:9100`
-- **IP**: 192.168.1.16
-- **Port**: 9100 (ESC/POS over TCP)
+Default queue names:
+- Main billing printer: `POS-X` (2 copies)
+- Kitchen printer 1: `KOT-LAN-1` (1 copy)
+- Kitchen printer 2: `KOT-LAN-2` (1 copy)
 
-### KITCHEN PRINTER 2 (Network)
-- **Address**: `tcp://192.168.1.87:9100`
-- **IP**: 192.168.1.87
-- **Port**: 9100 (ESC/POS over TCP)
+You can override those names in `.env.local`:
+```bash
+PRINT_MAIN_THERMAL=POS-X
+PRINT_LAN_1=KOT-LAN-1
+PRINT_LAN_2=KOT-LAN-2
+PRINT_ALLOW_DUPLICATE_TARGETS=true
+```
+
+For local testing, you can intentionally send all four logical copies to one virtual printer:
+```bash
+PRINT_MAIN_THERMAL=CutePDF Writer
+PRINT_LAN_1=CutePDF Writer
+PRINT_LAN_2=CutePDF Writer
+PRINT_ALLOW_DUPLICATE_TARGETS=true
+```
 
 ## Installation
 
@@ -38,7 +47,8 @@ Thermal Printers (USB + Network)
 - Print service dependencies already in package.json:
   - `express`
   - `cors`
-  - `node-thermal-printer`
+  - `pdf-to-printer`
+  - `pdfkit`
 
 ### Step 1: Install Dependencies
 ```bash
