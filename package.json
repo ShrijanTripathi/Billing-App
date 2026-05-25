@@ -2,22 +2,31 @@
   "name": "balaji-bill-generator",
   "version": "1.0.0",
   "private": true,
+  "main": "main.js",
   "scripts": {
     "dev": "next dev",
     "dev:backend": "npm --prefix backend run dev",
+    "print-service": "node print-service/server.js",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dist": "electron-builder"
   },
   "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "next": "14.2.5",
+    "pdf-to-printer": "^5.8.0",
+    "pdfkit": "^0.18.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.19",
+    "electron": "^41.7.0",
+    "electron-builder": "^26.8.1",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.4"
   }

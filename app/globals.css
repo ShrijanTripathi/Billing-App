@@ -34,7 +34,14 @@ select {
 }
 
 .thermal-print-area {
-  display: none;
+  background: #ffffff;
+  color: #000000;
+  left: -10000px;
+  overflow: hidden;
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  width: 80mm;
 }
 
 .thermal-receipt-shell {
@@ -288,6 +295,90 @@ select {
   font-weight: 900;
 }
 
+.thermal-print-area .thermal-receipt-shell {
+  display: block;
+  margin: 0;
+  padding: 0;
+  width: 80mm;
+}
+
+.thermal-print-area .thermal-receipt {
+  border: 0;
+  font-family: Arial, "Segoe UI", Tahoma, sans-serif;
+  font-size: 13.2px;
+  font-weight: 700;
+  line-height: 1.24;
+  margin: 0 auto;
+  max-width: 78mm;
+  padding: 1mm 1.5mm 2mm;
+  text-rendering: geometricPrecision;
+  width: 78mm;
+  -webkit-font-smoothing: antialiased;
+}
+
+.thermal-print-area .receipt-brand {
+  font-size: 17.2px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.thermal-print-area .receipt-header-line {
+  font-size: 12.4px;
+  font-weight: 700;
+  line-height: 1.16;
+}
+
+.thermal-print-area .receipt-divider {
+  border-top-width: 1.5px;
+}
+
+.thermal-print-area .receipt-order-type {
+  font-size: 15.2px;
+  font-weight: 800;
+}
+
+.thermal-print-area .receipt-info-grid {
+  font-size: 12px;
+}
+
+.thermal-print-area .receipt-items {
+  font-size: 11.8px;
+  line-height: 1.2;
+}
+
+.thermal-print-area .receipt-items th {
+  border-bottom-width: 1.3px;
+  font-weight: 800;
+}
+
+.thermal-print-area .receipt-items td {
+  font-weight: 700;
+}
+
+.thermal-print-area .receipt-summary {
+  font-size: 12.8px;
+  font-weight: 800;
+}
+
+.thermal-print-area .receipt-grand-total {
+  font-size: 16.2px;
+  font-weight: 800;
+}
+
+.thermal-print-area .receipt-footer {
+  font-size: 11.8px;
+  font-weight: 700;
+}
+
+.thermal-print-area .receipt-footer-line {
+  font-size: 11.4px;
+}
+
+.thermal-print-area .receipt-thanks {
+  font-size: 12.2px;
+  font-weight: 800;
+}
+
 @media print {
   @page {
     size: 80mm auto;
@@ -319,8 +410,13 @@ select {
     box-sizing: border-box !important;
     color: #000000 !important;
     display: block !important;
+    left: auto !important;
     margin: 0 !important;
+    overflow: visible !important;
     padding: 1mm 1mm 3mm !important;
+    pointer-events: auto !important;
+    position: static !important;
+    top: auto !important;
     width: 80mm !important;
   }
 
