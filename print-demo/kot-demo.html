@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>KOT Print Demo</title>
+  <style>
+    :root{--receipt-width:80mm}
+    .receipt-58{--receipt-width:58mm}
+
+    body{font-family: Arial, Helvetica, sans-serif; margin:16px; background:#f4f4f4}
+    .controls{margin-bottom:12px}
+    button{margin-right:8px;padding:6px 10px}
+
+    /* KOT demo styles (monospace, dashed separators, compact) */
+    .kot-receipt-shell{background:#fff;padding:8px;border:1px solid #ddd;display:inline-block}
+    .kot-receipt{width:var(--receipt-width);font-family: "Courier New", Courier, monospace;color:#000;background:#fff;font-size:12px;line-height:1.25;padding:6px 8px;box-sizing:border-box}
+
+    .kot-header{text-align:center;margin-bottom:4px}
+    .kot-datetime{font-size:10px}
+
+    .kot-divider{border-top:1px dashed #000;margin:6px 0;height:0}
+
+    .kot-bill{text-align:center;margin:2px 0 4px}
+    .kot-label{font-size:11px;font-weight:700;letter-spacing:1px}
+    .kot-billno{font-size:28px;font-weight:700;letter-spacing:1px;margin-top:4px}
+
+    .kot-small-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+    .kot-meta-value{font-size:12px;font-weight:700}
+
+    .kot-instructions{margin:4px 0}
+    .kot-instructions-box{font-size:12px;font-weight:700;padding:6px;border:1px dashed #000;margin-top:4px;white-space:pre-wrap}
+
+    .kot-items-section{margin:2px 0}
+    .kot-items-list{margin-top:4px}
+    .kot-item-line{padding:6px 0;border-bottom:1px dashed #000;page-break-inside:avoid;break-inside:avoid}
+    .kot-item-main{font-size:14px;font-weight:700}
+    .kot-item-mods{font-size:11px;font-weight:600;margin-top:4px}
+
+    .kot-footer{text-align:center;margin-top:6px}
+    .kot-order-type{font-size:12px;font-weight:700;margin-top:4px}
+
+    /* print adjustments */
+    @media print{
+      body{background:#fff}
+      .controls{display:none}
+      .kot-receipt-shell{border:0}
+      .kot-receipt{padding:6px}
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <button id="btn-58">Print (58mm)</button>
+    <button id="btn-80">Print (80mm)</button>
+    <button id="btn-toggle">Toggle 58/80 Preview</button>
+  </div>
+
+  <div id="preview-area">
+    <div id="kot" class="kot-receipt-shell receipt-58">
+      <div class="kot-receipt">
+        <div class="kot-header">
+          <div class="kot-datetime">29/05/2026 00:45</div>
+        </div>
+
+        <div class="kot-divider"></div>
+
+        <div class="kot-bill">
+          <div class="kot-label">KOT</div>
+          <div class="kot-billno">76624</div>
+        </div>
+
+        <div class="kot-divider"></div>
+
+        <div class="kot-meta">
+          <div class="kot-small-label">NAME</div>
+          <div class="kot-meta-value">Test</div>
+        </div>
+
+        <div class="kot-instructions">
+          <div class="kot-small-label">INSTRUCTIONS</div>
+          <div class="kot-instructions-box">Pack green Shirt</div>
+        </div>
+
+        <div class="kot-divider"></div>
+
+        <div class="kot-items-section">
+          <div class="kot-small-label">ITEMS</div>
+          <div class="kot-items-list">
+            <div class="kot-item-line">
+              <div class="kot-item-main">2 x Burger</div>
+              <div class="kot-item-mods">Extra cheese, No onion</div>
+            </div>
+            <div class="kot-item-line">
+              <div class="kot-item-main">1 x Caramel Coffee Hot</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="kot-divider"></div>
+
+        <div class="kot-footer">
+          <div class="kot-small-label">ORDER TYPE</div>
+          <div class="kot-order-type">TAKE AWAY</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const kotShell = document.getElementById('kot');
+    document.getElementById('btn-58').addEventListener('click', ()=>{
+      kotShell.classList.add('receipt-58');
+      kotShell.classList.remove('receipt-80');
+      setTimeout(()=>window.print(),100);
+    });
+    document.getElementById('btn-80').addEventListener('click', ()=>{
+      kotShell.classList.remove('receipt-58');
+      kotShell.classList.add('receipt-80');
+      setTimeout(()=>window.print(),100);
+    });
+    document.getElementById('btn-toggle').addEventListener('click', ()=>{
+      kotShell.classList.toggle('receipt-58');
+    });
+  </script>
+</body>
+</html>
