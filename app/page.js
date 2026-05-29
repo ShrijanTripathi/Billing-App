@@ -6,6 +6,7 @@ import jsPDF from "jspdf";
 import { apiRequest } from "../services/apiClient";
 import { sendToPrinter } from "../services/printApi";
 import ThermalReceipt from "../components/ThermalReceipt";
+import KotReceipt from "../components/admin/KotReceipt";
 import DynamicMenuPanel from "../components/pos/DynamicMenuPanel";
 import QuickAddonPanel from "../components/pos/QuickAddonPanel";
 import {
@@ -104,6 +105,7 @@ export default function Home() {
   const [isPrinting, setIsPrinting] = useState(false);
   const receiptRef = useRef(null);
   const printReceiptRef = useRef(null);
+  const kotPrintReceiptRef = useRef(null);
   const isPrintingRef = useRef(false);
   const selectedBusiness = useMemo(
     () => getBusinessProfile(selectedBusinessId),
@@ -368,6 +370,7 @@ export default function Home() {
 
   const printBill = async () => {
     const printableReceipt = printReceiptRef.current || receiptRef.current;
+    const printableKot = kotPrintReceiptRef.current;
     if (!bill || !printableReceipt || isPrintingRef.current) return;
 
     try {
@@ -375,8 +378,8 @@ export default function Home() {
       setIsPrinting(true);
       console.log('[PRINT BILL] Starting multi-printer print job...');
 
-      // Call sendToPrinter API (handles 4 copies: 2x Main + 1x LAN1 + 1x LAN2)
-      const printResult = await sendToPrinter(printableReceipt, {
+      // Call sendToPrinter API (Main Receipt + KOT for kitchen printers)
+      const printResult = await sendToPrinter(printableReceipt, printableKot, {
         billNo: bill.billNo,
         tokenNo: bill.tokenNo,
       });
@@ -773,6 +776,12 @@ export default function Home() {
       <div className="thermal-print-area" aria-hidden="true">
         <ThermalReceipt
           ref={printReceiptRef}
+          bill={bill}
+          restaurant={receiptRestaurant}
+          className="thermal-print-receipt"
+        />
+        <KotReceipt
+          ref={kotPrintReceiptRef}
           bill={bill}
           restaurant={receiptRestaurant}
           className="thermal-print-receipt"

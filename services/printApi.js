@@ -47,69 +47,74 @@ function formatPrinterConfigIssues(errorData) {
   return [...missing, ...blocked, ...duplicateTargets].join("; ");
 }
 
-export async function sendToPrinter(receiptElement, printMeta = {}) {
+async function generatePdfFromElement(element) {
+  if (!element || !element.innerText || element.innerText.trim().length === 0) {
+    return null;
+  }
+
+  // Wait for fonts to load
+  if (document.fonts?.ready) {
+    await document.fonts.ready;
+  }
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+  // Capture element to canvas
+  const canvas = await html2canvas(element, {
+    scale: HIGH_QUALITY_CAPTURE_SCALE,
+    useCORS: true,
+    backgroundColor: "#ffffff",
+    logging: false,
+    allowTaint: true,
+    imageTimeout: 0,
+    windowWidth: Math.ceil(element.scrollWidth),
+    windowHeight: Math.ceil(element.scrollHeight),
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+
+  // Create PDF with auto height
+  const pdfWidth = RECEIPT_PDF_WIDTH_MM;
+  const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: [pdfWidth, pdfHeight],
+  });
+
+  pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+  // Return Base64 PDF
+  return pdf.output("datauristring");
+}
+
+export async function sendToPrinter(receiptElement, kotElement, printMeta = {}) {
   try {
     if (!receiptElement) {
       throw new Error("Receipt element missing");
     }
 
-    // Check if element has content
-    if (!receiptElement.innerText || receiptElement.innerText.trim().length === 0) {
-      throw new Error("Receipt is empty - no data to print");
+    console.log('[PRINT START] Generating Receipt and KOT PDFs...');
+
+    // Generate Receipt PDF (for main printer)
+    const receiptPdf = await generatePdfFromElement(receiptElement);
+    if (!receiptPdf) {
+      throw new Error("Failed to generate receipt PDF");
     }
 
-    console.log('[ELEMENT CHECK]', {
-      hasContent: receiptElement.innerText.length > 0,
-      visible: receiptElement.offsetParent !== null,
-      width: receiptElement.scrollWidth,
-      height: receiptElement.scrollHeight,
-    });
+    // Generate KOT PDF (for kitchen printers) - fallback to receipt if not available
+    const kotPdf = kotElement 
+      ? await generatePdfFromElement(kotElement)
+      : null;
 
-    // Wait for browser font/layout work to settle before rasterizing the receipt.
-    if (document.fonts?.ready) {
-      await document.fonts.ready;
+    console.log('[PDF GENERATED] Receipt:', (receiptPdf.length / 1024 / 1024).toFixed(2), 'MB');
+    if (kotPdf) {
+      console.log('[PDF GENERATED] KOT:', (kotPdf.length / 1024 / 1024).toFixed(2), 'MB');
     }
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-
-    // Capture at print-friendly density so text remains readable on thermal printers.
-    const canvas = await html2canvas(receiptElement, {
-      scale: HIGH_QUALITY_CAPTURE_SCALE,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      logging: false,
-      allowTaint: true,
-      imageTimeout: 0,
-      windowWidth: Math.ceil(receiptElement.scrollWidth),
-      windowHeight: Math.ceil(receiptElement.scrollHeight),
-    });
-
-    console.log('[CANVAS CREATED]', {
-      width: canvas.width,
-      height: canvas.height,
-    });
-
-    const imgData = canvas.toDataURL("image/png");
-
-    // CREATE PDF WITH AUTO HEIGHT
-    const pdfWidth = RECEIPT_PDF_WIDTH_MM;
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: [pdfWidth, pdfHeight],
-    });
-
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-
-    // CONVERT TO BASE64
-    const pdfBase64 = pdf.output("datauristring");
-    
-    console.log('[PDF SIZE]', (pdfBase64.length / 1024 / 1024).toFixed(2), 'MB');
 
     const printJobId = createPrintJobId(printMeta);
 
-    // SEND TO BACKEND (Multi-Printer: 2x Main + 1x LAN1 + 1x LAN2 = 4 copies)
+    // SEND TO BACKEND (Main Thermal + Kitchen Printers with separate PDFs)
     const response = await fetch(
       `${PRINT_SERVICE_URL}/print-multiple`,
       {
@@ -119,7 +124,8 @@ export async function sendToPrinter(receiptElement, printMeta = {}) {
           "X-Print-Job-Id": printJobId,
         },
         body: JSON.stringify({
-          pdf: pdfBase64,
+          receiptPdf: receiptPdf,
+          kotPdf: kotPdf || receiptPdf, // Fallback to receipt PDF if KOT not available
           jobId: printJobId,
           billNo: printMeta?.billNo || "",
           tokenNo: printMeta?.tokenNo || "",

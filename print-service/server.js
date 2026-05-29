@@ -65,7 +65,7 @@ const ALLOW_DUPLICATE_PRINTER_TARGETS = isEnabledEnvFlag(
 const PRINTER_NAME = PRINTERS_CONFIG.MAIN_THERMAL;
 
 const PRINT_JOBS = [
-  { printer: "MAIN_THERMAL", copies: 2, type: "CUSTOMER COPY" },
+  { printer: "MAIN_THERMAL", copies: 1, type: "CUSTOMER COPY" },
   { printer: "LAN_1", copies: 1, type: "KITCHEN COPY" },
   { printer: "LAN_2", copies: 1, type: "KITCHEN COPY" },
 ];
@@ -665,17 +665,31 @@ app.post("/print-multiple", async (req, res) => {
   }
 
   activePrintJobId = requestedJobId;
-  let pdfPath = "";
+  let receiptPdfPath = "";
+  let kotPdfPath = "";
 
   try {
-    const { pdf } = req.body;
+    // Support both new format (receiptPdf + kotPdf) and legacy format (pdf)
+    const { pdf, receiptPdf, kotPdf } = req.body;
+    const hasNewFormat = receiptPdf || kotPdf;
+    const pdfToUse = hasNewFormat ? receiptPdf : pdf;
 
-    const parsedPdf = extractPdfBase64(pdf);
-    if (parsedPdf.error) {
+    const parsedReceipt = extractPdfBase64(pdfToUse);
+    if (parsedReceipt.error) {
       return res.status(400).json({
         success: false,
-        error: parsedPdf.error,
+        error: parsedReceipt.error,
       });
+    }
+
+    // Parse KOT PDF if provided in new format
+    let parsedKot = null;
+    if (kotPdf && hasNewFormat) {
+      parsedKot = extractPdfBase64(kotPdf);
+      if (parsedKot.error) {
+        console.log('[WARNING] KOT PDF parsing failed, will use receipt PDF for kitchen printers');
+        parsedKot = null;
+      }
     }
 
     const printerStatus = await getPrinterConfigurationStatus();
@@ -720,23 +734,35 @@ app.post("/print-multiple", async (req, res) => {
     }
 
     ensurePrintTmpDir();
-    pdfPath = path.join(PRINT_TMP_DIR, `${requestedJobId}.pdf`);
+    receiptPdfPath = path.join(PRINT_TMP_DIR, `${requestedJobId}-receipt.pdf`);
+    kotPdfPath = hasNewFormat && parsedKot ? path.join(PRINT_TMP_DIR, `${requestedJobId}-kot.pdf`) : null;
 
-    // Write PDF file
+    // Write Receipt PDF file
     try {
-      fs.writeFileSync(pdfPath, parsedPdf.base64Data, "base64");
-      console.log(`\n[PDF] Saved job ${requestedJobId} to: ${pdfPath}`);
+      fs.writeFileSync(receiptPdfPath, parsedReceipt.base64Data, "base64");
+      console.log(`\n[PDF] Saved receipt ${requestedJobId} to: ${receiptPdfPath}`);
     } catch (writeError) {
       return res.status(500).json({
         success: false,
-        error: `Failed to save PDF: ${writeError.message}`,
+        error: `Failed to save receipt PDF: ${writeError.message}`,
       });
     }
 
-    if (!fs.existsSync(pdfPath)) {
+    // Write KOT PDF file if available
+    if (kotPdfPath && parsedKot) {
+      try {
+        fs.writeFileSync(kotPdfPath, parsedKot.base64Data, "base64");
+        console.log(`[PDF] Saved KOT ${requestedJobId} to: ${kotPdfPath}`);
+      } catch (writeError) {
+        console.log(`[WARNING] Failed to save KOT PDF, will use receipt PDF: ${writeError.message}`);
+        kotPdfPath = null;
+      }
+    }
+
+    if (!fs.existsSync(receiptPdfPath)) {
       return res.status(500).json({
         success: false,
-        error: "PDF file was not created",
+        error: "Receipt PDF file was not created",
       });
     }
 
@@ -746,6 +772,8 @@ app.post("/print-multiple", async (req, res) => {
 
     for (const job of PRINT_JOBS) {
       const printerName = PRINTERS_CONFIG[job.printer];
+      // Use KOT PDF for kitchen printers (LAN_1, LAN_2), receipt PDF for main printer
+      const pdfPathToUse = (job.printer !== "MAIN_THERMAL" && kotPdfPath) ? kotPdfPath : receiptPdfPath;
 
       for (let copy = 1; copy <= job.copies; copy++) {
         try {
@@ -753,7 +781,7 @@ app.post("/print-multiple", async (req, res) => {
             `[PRINT] Job ${requestedJobId} - ${job.type} - Copy ${copy}/${job.copies} to ${printerName}`,
           );
 
-          await printPdfCopy(pdfPath, printerName);
+          await printPdfCopy(pdfPathToUse, printerName);
 
           console.log(
             `[SUCCESS] Job ${requestedJobId} - ${job.type} - Copy ${copy} sent`,
@@ -810,7 +838,8 @@ app.post("/print-multiple", async (req, res) => {
       error: error.message,
     });
   } finally {
-    safeUnlink(pdfPath);
+    safeUnlink(receiptPdfPath);
+    safeUnlink(kotPdfPath);
     activePrintJobId = null;
   }
 });
@@ -957,7 +986,7 @@ module.exports = app.listen(PORT, "0.0.0.0", () => {
   console.log("==================================");
   console.log(`Print Server Running On ${PORT}`);
   console.log("\nMulti-Printer Configuration:");
-  console.log(`  Main Thermal: ${PRINTERS_CONFIG.MAIN_THERMAL} (2 copies)`);
+  console.log(`  Main Thermal: ${PRINTERS_CONFIG.MAIN_THERMAL} (1 copies)`);
   console.log(`  LAN 1 (KOT):  ${PRINTERS_CONFIG.LAN_1} (1 copy)`);
   console.log(`  LAN 2 (KOT):  ${PRINTERS_CONFIG.LAN_2} (1 copy)`);
   console.log(
