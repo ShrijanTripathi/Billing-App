@@ -20,7 +20,7 @@ const KotReceipt = forwardRef(function KotReceipt({ bill = {}, className = "" },
   const dateTime = bill?.dateTime || `${bill?.date || ""} ${bill?.time || ""}`.trim();
 
   return (
-    <section ref={ref} className={`kot-receipt-shell ${className}`.trim()} aria-label="Kitchen Order Ticket">
+    <section ref={ref} className={`kot-receipt-shell ${className}`.trim()} aria-label="Kitchen Order Ticket" suppressHydrationWarning>
       <article className="kot-receipt">
         <div className="kot-header">
           <div className="kot-datetime">{dateTime}</div>
@@ -78,7 +78,7 @@ const KotReceipt = forwardRef(function KotReceipt({ bill = {}, className = "" },
         </div>
       </article>
 
-      <style>{`
+      <style suppressHydrationWarning>{`
         /* Scoped, printer-friendly variables */
         .kot-receipt-shell {
           position: absolute;

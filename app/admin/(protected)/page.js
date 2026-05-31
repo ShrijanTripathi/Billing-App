@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Modal from "../../../components/admin/Modal";
 import { apiRequest, API_BASE_URL } from "../../../services/apiClient";
 import { fetchCategoriesV2, fetchMenuV2, isMenuItemAvailable } from "../../../services/menuV2Api";
+import ClientDate from "../../../components/ClientDate";
 
 const SALES_RANGES = [
   { key: "today", label: "Today Sale" },
@@ -452,7 +453,7 @@ export default function AdminDashboardPage() {
                             <tr key={sale._id} className="border-b border-slate-100">
                               <td className="py-2 text-slate-900">{sale.billNo}</td>
                               <td className="py-2 text-slate-600">
-                                {new Date(sale.billedAt).toLocaleString("en-IN")}
+                                <ClientDate iso={sale.billedAt} locale="en-IN" />
                               </td>
                               <td className="py-2 text-slate-600">{formatCurrency(sale.grandTotal)}</td>
                               <td className="py-2">
