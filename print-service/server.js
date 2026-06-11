@@ -700,25 +700,29 @@ app.post("/print-multiple", async (req, res) => {
       });
     }
 
-    if (printerStatus.missingPrinters.length > 0) {
+    // Determine which configured print jobs are actually available (installed + ready)
+    const availablePrintJobs = PRINT_JOBS.filter((job) => {
+      const cfg = printerStatus.configuredPrinters.find(
+        (p) => p.key === job.printer,
+      );
+      return Boolean(cfg && cfg.installed && cfg.readyForPdf);
+    });
+
+    const skippedPrinters = PRINT_JOBS.filter(
+      (job) => !availablePrintJobs.some((a) => a.printer === job.printer),
+    ).map((job) => ({ key: job.printer, configuredName: PRINTERS_CONFIG[job.printer] }));
+
+    // If nothing is available, fail early
+    if (availablePrintJobs.length === 0) {
       return res.status(400).json({
         success: false,
-        error: "Configured printer not found in Windows",
-        missingPrinters: printerStatus.missingPrinters,
-        installedPrinters: printerStatus.printers.map(
-          (printer) => printer.name,
-        ),
+        error: "No configured printers are available",
+        skippedPrinters,
+        installedPrinters: printerStatus.printers.map((printer) => printer.name),
       });
     }
 
-    if (printerStatus.blockedPrinters.length > 0) {
-      return res.status(400).json({
-        success: false,
-        error: "Configured printer driver cannot render PDF/image print jobs",
-        blockedPrinters: printerStatus.blockedPrinters,
-      });
-    }
-
+    // Keep duplicate-target check as a hard error (safe guard)
     if (
       !printerStatus.allowDuplicatePrinterTargets &&
       printerStatus.duplicatePrinterTargets.length > 0
@@ -766,11 +770,13 @@ app.post("/print-multiple", async (req, res) => {
       });
     }
 
-    // Print to all printers
+    // Print to available printers only
+    const jobsToPrint = availablePrintJobs;
+    const totalCopies = jobsToPrint.reduce((s, j) => s + (j.copies || 0), 0);
     const results = [];
     const errors = [];
 
-    for (const job of PRINT_JOBS) {
+    for (const job of jobsToPrint) {
       const printerName = PRINTERS_CONFIG[job.printer];
       // Use KOT PDF for kitchen printers (LAN_1, LAN_2), receipt PDF for main printer
       const pdfPathToUse = (job.printer !== "MAIN_THERMAL" && kotPdfPath) ? kotPdfPath : receiptPdfPath;
@@ -821,15 +827,17 @@ app.post("/print-multiple", async (req, res) => {
         jobId: requestedJobId,
         results,
         errors,
+        skippedPrinters,
       });
     }
 
     res.json({
       success: true,
       partialSuccess: false,
-      message: `All ${getTotalConfiguredCopies()} copies printed successfully`,
+      message: `All ${totalCopies} copies printed successfully`,
       jobId: requestedJobId,
       results,
+      skippedPrinters,
     });
   } catch (error) {
     console.error("\n[PRINT MULTIPLE ERROR]", error.message);
