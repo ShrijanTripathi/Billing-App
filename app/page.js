@@ -435,358 +435,371 @@ export default function Home() {
     }
   };
 
+  // return (
+  //   <>
+  //     <main className="app-shell min-h-screen p-3 text-slate-800 sm:p-5">
+  //       <div className="mx-auto w-full max-w-7xl">
+  //         <header className="mb-4 rounded-2xl border border-white/80 bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur sm:p-5">
+  //           <h1 className="text-2xl font-bold text-brand-900 sm:text-3xl">
+  //             Balaji Ji Food Arts
+  //           </h1>
+  //         </header>
+
+  //         <section className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.28fr)_minmax(360px,0.72fr)]">
+  //           <DynamicMenuPanel onAddItem={addItem} hideAddonItems />
+
+  //           <div className="space-y-4">
+  //             <QuickAddonPanel onAddItem={addItem} />
+
+  //             <div className="rounded-2xl border border-white/80 bg-white/95 p-3 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur sm:p-4">
+  //               <h2 className="mb-3 text-xl font-semibold text-brand-900">Cart</h2>
+  //               {!cart.length && <p className="text-sm text-gray-500">No items in cart.</p>}
+
+  //               <div className="space-y-3 no-print">
+  //                 {cart.map((item) => (
+  //                   <div
+  //                     key={item._id}
+  //                     className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+  //                   >
+  //                     <div className="min-w-0">
+  //                       <div className="font-medium text-gray-800">{item.name}</div>
+  //                       <div className="text-sm text-gray-600">{"\u20B9"}{item.price} each</div>
+  //                     </div>
+  //                     <div className="flex flex-wrap items-center justify-end gap-2">
+  //                       <button
+  //                         type="button"
+  //                         onClick={() => changeQty(item._id, -1)}
+  //                         className="h-9 w-9 rounded-lg border border-slate-300 bg-white text-lg text-slate-700 shadow-sm transition hover:bg-slate-50"
+  //                       >
+  //                         -
+  //                       </button>
+  //                       <span className="w-6 text-center font-medium">{item.qty}</span>
+  //                       <button
+  //                         type="button"
+  //                         onClick={() => changeQty(item._id, 1)}
+  //                         className="h-9 w-9 rounded-lg border border-slate-300 bg-white text-lg text-slate-700 shadow-sm transition hover:bg-slate-50"
+  //                       >
+  //                         +
+  //                       </button>
+  //                       <button
+  //                         type="button"
+  //                         onClick={() => removeItem(item._id)}
+  //                         className="h-9 rounded-lg bg-red-50 px-3 text-xs font-medium text-red-700 transition hover:bg-red-100"
+  //                       >
+  //                         Remove
+  //                       </button>
+  //                     </div>
+  //                   </div>
+  //                 ))}
+  //               </div>
+
+  //               <div className="no-print mt-4 rounded-xl border border-brand-100 bg-gradient-to-br from-brand-50 to-white p-3 text-sm shadow-inner sm:p-4">
+  //                 <div className="mb-3 flex flex-wrap gap-3">
+  //                   <div className="flex-1 min-w-[170px]">
+  //                     <label
+  //                       className="mb-1 block text-xs font-medium text-slate-700"
+  //                       htmlFor="customerNameInput"
+  //                     >
+  //                       Customer Name
+  //                     </label>
+  //                     <input
+  //                       id="customerNameInput"
+  //                       type="text"
+  //                       value={customerName}
+  //                       onChange={(e) => setCustomerName(e.target.value)}
+  //                       className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+  //                       placeholder="Enter name"
+  //                     />
+  //                   </div>
+  //                   <div className="flex-1 min-w-[170px]">
+  //                     <label
+  //                       className="mb-1 block text-xs font-medium text-slate-700"
+  //                       htmlFor="customerPhoneInput"
+  //                     >
+  //                       Phone Number
+  //                     </label>
+  //                     <input
+  //                       id="customerPhoneInput"
+  //                       type="tel"
+  //                       inputMode="tel"
+  //                       maxLength={14}
+  //                       pattern="[6-9][0-9]{9}"
+  //                       aria-invalid={customerPhoneError ? "true" : "false"}
+  //                       value={customerPhone}
+  //                       onChange={(e) => updateCustomerPhone(e.target.value)}
+  //                       className={`h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 ${
+  //                         customerPhoneError ? "border-red-400" : "border-slate-300"
+  //                       }`}
+  //                       placeholder="Enter phone"
+  //                     />
+  //                     {customerPhoneError ? (
+  //                       <p className="mt-1 text-xs text-red-600">{customerPhoneError}</p>
+  //                     ) : null}
+  //                   </div>
+
+  //                   <div className="flex-1 min-w-[170px]">
+  //                     <label
+  //                       className="mb-1 block text-xs font-medium text-slate-700"
+  //                       htmlFor="customerDescriptionInput"
+  //                     >
+  //                       Description
+  //                     </label>
+  //                     <input
+  //                       id="customerDescriptionInput"
+  //                       type="text"
+  //                       value={customerDescription}
+  //                       onChange={(e) => setCustomerDescription(e.target.value)}
+  //                       className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+  //                       placeholder="Enter description"
+  //                     />
+  //                   </div>
+  //                 </div>
+
+  //                 <div className="flex justify-between">
+  //                   <span>Total Qty:</span>
+  //                   <span>{totals.totalQty}</span>
+  //                 </div>
+  //                 <div className="mt-1 flex justify-between">
+  //                   <span>Subtotal:</span>
+  //                   <span>{"\u20B9"}{totals.subtotal.toFixed(2)}</span>
+  //                 </div>
+  //                 <div className="mt-1 flex justify-between">
+  //                   <span>Discount ({totals.discountPercent.toFixed(2)}%):</span>
+  //                   <span>-{"\u20B9"}{totals.discountAmount.toFixed(2)}</span>
+  //                 </div>
+  //                 <div className="mt-1 flex justify-between font-semibold">
+  //                   <span>Final Payable:</span>
+  //                   <span>{"\u20B9"}{totals.grandTotal.toFixed(2)}</span>
+  //                 </div>
+  //               </div>
+
+  //               <div className="no-print mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+  //                 <div className="col-span-2 flex flex-wrap items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm sm:col-span-1">
+  //                   <span className="text-slate-700">Order:</span>
+  //                   <div className="flex overflow-hidden rounded-md border border-slate-300">
+  //                     {[
+  //                       ["TAKE_AWAY", "Take Away"],
+  //                       ["DINING", "Dining"],
+  //                     ].map(([value, label]) => (
+  //                       <button
+  //                         key={value}
+  //                         type="button"
+  //                         onClick={() => setOrderType(value)}
+  //                         className={`h-8 px-3 text-xs font-semibold transition ${
+  //                           orderType === value
+  //                             ? "bg-brand-700 text-white"
+  //                             : "bg-white text-slate-700 hover:bg-slate-50"
+  //                         }`}
+  //                       >
+  //                         {label}
+  //                       </button>
+  //                     ))}
+  //                   </div>
+  //                 </div>
+
+  //                 <div className="col-span-2 flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm sm:col-span-1">
+  //                   <span className="text-slate-700">Sale Type:</span>
+  //                   <select
+  //                     value={saleType}
+  //                     onChange={(event) => setSaleType(event.target.value)}
+  //                     className="h-8 rounded-lg border border-slate-300 bg-white px-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+  //                   >
+  //                     <option value="ONLINE">ONLINE</option>
+  //                     <option value="OFFLINE">OFFLINE</option>
+  //                   </select>
+  //                 </div>
+
+  //                 <button
+  //                   type="button"
+  //                   onClick={openDiscountPanel}
+  //                   className="h-11 rounded-xl border border-brand-500 bg-white px-4 text-brand-800 shadow-sm transition hover:bg-brand-50 sm:w-auto"
+  //                 >
+  //                   Discount
+  //                 </button>
+
+  //                 <button
+  //                   type="button"
+  //                   onClick={generateBill}
+  //                   disabled={!cart.length}
+  //                   className="h-11 rounded-xl bg-brand-700 px-4 font-semibold text-white shadow-sm transition hover:bg-brand-900 disabled:cursor-not-allowed disabled:opacity-50"
+  //                 >
+  //                   Generate Bill
+  //                 </button>
+
+  //                 <button
+  //                   type="button"
+  //                   onClick={printBill}
+  //                   disabled={!bill || isPrinting}
+  //                   className="h-11 rounded-xl border border-brand-700 bg-white px-4 text-brand-800 shadow-sm transition hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-50"
+  //                 >
+  //                   {isPrinting ? "Printing..." : "Print Bill"}
+  //                 </button>
+
+  //                 <button
+  //                   type="button"
+  //                   onClick={downloadPdf}
+  //                   disabled={!bill || isPdfGenerating || isPrinting}
+  //                   className="h-11 rounded-xl border border-slate-400 bg-white px-4 text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+  //                 >
+  //                   {isPdfGenerating ? "Generating PDF..." : "Download PDF"}
+  //                 </button>
+
+  //                 <div className="col-span-2 flex w-full flex-col gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm sm:w-auto sm:min-w-[300px] sm:flex-row sm:flex-wrap sm:items-center">
+  //                   <label className="text-slate-700" htmlFor="billBusinessSelect">
+  //                     Bill Name:
+  //                   </label>
+  //                   <select
+  //                     id="billBusinessSelect"
+  //                     value={selectedBusinessId}
+  //                     onChange={(event) => setSelectedBusinessId(event.target.value)}
+  //                     className="h-9 w-full rounded-lg border border-slate-300 bg-white px-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 sm:w-auto sm:min-w-[170px]"
+  //                   >
+  //                     {BUSINESS_PROFILES.map((profile) => (
+  //                       <option key={profile.id} value={profile.id}>
+  //                         {profile.name}
+  //                       </option>
+  //                     ))}
+  //                   </select>
+
+  //                   <label
+  //                     className="flex items-center gap-2 whitespace-nowrap text-slate-700"
+  //                     htmlFor="printGstNoInput"
+  //                   >
+  //                     <input
+  //                       id="printGstNoInput"
+  //                       type="checkbox"
+  //                       checked={printGstNo}
+  //                       onChange={(event) => setPrintGstNo(event.target.checked)}
+  //                       className="h-4 w-4 accent-brand-700"
+  //                     />
+  //                     <span>Print GST No.</span>
+  //                   </label>
+
+  //                   {printGstNo ? (
+  //                     <span className="basis-full text-xs text-slate-500">
+  //                       GSTIN: {selectedBusiness.gstin}
+  //                     </span>
+  //                   ) : null}
+  //                 </div>
+
+  //                 <button
+  //                   type="button"
+  //                   onClick={clearOrder}
+  //                   className="col-span-2 h-11 rounded-xl border border-red-300 bg-white px-4 text-red-700 shadow-sm transition hover:bg-red-50 sm:col-span-1"
+  //                 >
+  //                   Clear Cart
+  //                 </button>
+  //               </div>
+
+  //               <div className="mt-5">
+  //                 <h3 className="no-print mb-2 text-lg font-semibold text-brand-900">
+  //                   Receipt Preview
+  //                 </h3>
+  //                 <div className="overflow-x-auto rounded-xl bg-slate-50 p-3">
+  //                   <ThermalReceipt
+  //                     ref={receiptRef}
+  //                     bill={bill}
+  //                     restaurant={receiptRestaurant}
+  //                     className="thermal-screen-receipt"
+  //                   />
+  //                 </div>
+  //               </div>
+  //             </div>
+  //           </div>
+  //         </section>
+  //       </div>
+
+  //       {discountPanelOpen ? (
+  //         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
+  //           <div className="w-full max-w-sm rounded-xl bg-white p-4 shadow-xl">
+  //             <div className="mb-3 flex items-center justify-between">
+  //               <h3 className="text-lg font-semibold text-brand-900">Apply Discount</h3>
+  //               <button
+  //                 type="button"
+  //                 onClick={() => setDiscountPanelOpen(false)}
+  //                 className="rounded-md border border-slate-300 px-2 py-1 text-sm text-slate-700"
+  //               >
+  //                 Close
+  //               </button>
+  //             </div>
+
+  //             <label
+  //               className="mb-2 block text-sm text-slate-700"
+  //               htmlFor="discountPercentInput"
+  //             >
+  //               Discount percentage
+  //             </label>
+
+  //             <input
+  //               id="discountPercentInput"
+  //               type="number"
+  //               min="0"
+  //               max="100"
+  //               step="0.01"
+  //               value={discountInput}
+  //               onChange={(event) => {
+  //                 setDiscountInput(event.target.value);
+  //                 if (discountError) setDiscountError("");
+  //               }}
+  //               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"
+  //               placeholder="Enter discount %"
+  //             />
+  //             {discountError ? <p className="mt-2 text-xs text-red-600">{discountError}</p> : null}
+
+  //             <div className="mt-4 rounded-lg bg-brand-50 p-3 text-sm">
+  //               <div className="flex justify-between">
+  //                 <span>Subtotal:</span>
+  //                 <span>{"\u20B9"}{previewTotals.subtotal.toFixed(2)}</span>
+  //               </div>
+  //               <div className="mt-1 flex justify-between">
+  //                 <span>Discount ({previewTotals.discountPercent.toFixed(2)}%):</span>
+  //                 <span>-{"\u20B9"}{previewTotals.discountAmount.toFixed(2)}</span>
+  //               </div>
+  //               <div className="mt-1 flex justify-between font-semibold">
+  //                 <span>Final Payable:</span>
+  //                 <span>{"\u20B9"}{previewTotals.grandTotal.toFixed(2)}</span>
+  //               </div>
+  //             </div>
+
+  //             <button
+  //               type="button"
+  //               onClick={applyDiscount}
+  //               className="mt-4 w-full rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white"
+  //             >
+  //               Apply Discount
+  //             </button>
+  //           </div>
+  //         </div>
+  //       ) : null}
+  //     </main>
+
+  //     <div className="thermal-print-area" aria-hidden="true">
+  //       <ThermalReceipt
+  //         ref={printReceiptRef}
+  //         bill={bill}
+  //         restaurant={receiptRestaurant}
+  //         className="thermal-print-receipt"
+  //       />
+  //       <KotReceipt
+  //         ref={kotPrintReceiptRef}
+  //         bill={bill}
+  //         restaurant={receiptRestaurant}
+  //         className="thermal-print-receipt"
+  //       />
+  //     </div>
+  //   </
+  // );
+
   return (
-    <>
-      <main className="app-shell min-h-screen p-3 text-slate-800 sm:p-5">
-        <div className="mx-auto w-full max-w-7xl">
-          <header className="mb-4 rounded-2xl border border-white/80 bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur sm:p-5">
-            <h1 className="text-2xl font-bold text-brand-900 sm:text-3xl">
-              Balaji Ji Food Arts
-            </h1>
-          </header>
-
-          <section className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.28fr)_minmax(360px,0.72fr)]">
-            <DynamicMenuPanel onAddItem={addItem} hideAddonItems />
-
-            <div className="space-y-4">
-              <QuickAddonPanel onAddItem={addItem} />
-
-              <div className="rounded-2xl border border-white/80 bg-white/95 p-3 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur sm:p-4">
-                <h2 className="mb-3 text-xl font-semibold text-brand-900">Cart</h2>
-                {!cart.length && <p className="text-sm text-gray-500">No items in cart.</p>}
-
-                <div className="space-y-3 no-print">
-                  {cart.map((item) => (
-                    <div
-                      key={item._id}
-                      className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div className="min-w-0">
-                        <div className="font-medium text-gray-800">{item.name}</div>
-                        <div className="text-sm text-gray-600">{"\u20B9"}{item.price} each</div>
-                      </div>
-                      <div className="flex flex-wrap items-center justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => changeQty(item._id, -1)}
-                          className="h-9 w-9 rounded-lg border border-slate-300 bg-white text-lg text-slate-700 shadow-sm transition hover:bg-slate-50"
-                        >
-                          -
-                        </button>
-                        <span className="w-6 text-center font-medium">{item.qty}</span>
-                        <button
-                          type="button"
-                          onClick={() => changeQty(item._id, 1)}
-                          className="h-9 w-9 rounded-lg border border-slate-300 bg-white text-lg text-slate-700 shadow-sm transition hover:bg-slate-50"
-                        >
-                          +
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => removeItem(item._id)}
-                          className="h-9 rounded-lg bg-red-50 px-3 text-xs font-medium text-red-700 transition hover:bg-red-100"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="no-print mt-4 rounded-xl border border-brand-100 bg-gradient-to-br from-brand-50 to-white p-3 text-sm shadow-inner sm:p-4">
-                  <div className="mb-3 flex flex-wrap gap-3">
-                    <div className="flex-1 min-w-[170px]">
-                      <label
-                        className="mb-1 block text-xs font-medium text-slate-700"
-                        htmlFor="customerNameInput"
-                      >
-                        Customer Name
-                      </label>
-                      <input
-                        id="customerNameInput"
-                        type="text"
-                        value={customerName}
-                        onChange={(e) => setCustomerName(e.target.value)}
-                        className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-                        placeholder="Enter name"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-[170px]">
-                      <label
-                        className="mb-1 block text-xs font-medium text-slate-700"
-                        htmlFor="customerPhoneInput"
-                      >
-                        Phone Number
-                      </label>
-                      <input
-                        id="customerPhoneInput"
-                        type="tel"
-                        inputMode="tel"
-                        maxLength={14}
-                        pattern="[6-9][0-9]{9}"
-                        aria-invalid={customerPhoneError ? "true" : "false"}
-                        value={customerPhone}
-                        onChange={(e) => updateCustomerPhone(e.target.value)}
-                        className={`h-10 w-full rounded-lg border bg-white px-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 ${
-                          customerPhoneError ? "border-red-400" : "border-slate-300"
-                        }`}
-                        placeholder="Enter phone"
-                      />
-                      {customerPhoneError ? (
-                        <p className="mt-1 text-xs text-red-600">{customerPhoneError}</p>
-                      ) : null}
-                    </div>
-
-                    <div className="flex-1 min-w-[170px]">
-                      <label
-                        className="mb-1 block text-xs font-medium text-slate-700"
-                        htmlFor="customerDescriptionInput"
-                      >
-                        Description
-                      </label>
-                      <input
-                        id="customerDescriptionInput"
-                        type="text"
-                        value={customerDescription}
-                        onChange={(e) => setCustomerDescription(e.target.value)}
-                        className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-                        placeholder="Enter description"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <span>Total Qty:</span>
-                    <span>{totals.totalQty}</span>
-                  </div>
-                  <div className="mt-1 flex justify-between">
-                    <span>Subtotal:</span>
-                    <span>{"\u20B9"}{totals.subtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="mt-1 flex justify-between">
-                    <span>Discount ({totals.discountPercent.toFixed(2)}%):</span>
-                    <span>-{"\u20B9"}{totals.discountAmount.toFixed(2)}</span>
-                  </div>
-                  <div className="mt-1 flex justify-between font-semibold">
-                    <span>Final Payable:</span>
-                    <span>{"\u20B9"}{totals.grandTotal.toFixed(2)}</span>
-                  </div>
-                </div>
-
-                <div className="no-print mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-                  <div className="col-span-2 flex flex-wrap items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm sm:col-span-1">
-                    <span className="text-slate-700">Order:</span>
-                    <div className="flex overflow-hidden rounded-md border border-slate-300">
-                      {[
-                        ["TAKE_AWAY", "Take Away"],
-                        ["DINING", "Dining"],
-                      ].map(([value, label]) => (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() => setOrderType(value)}
-                          className={`h-8 px-3 text-xs font-semibold transition ${
-                            orderType === value
-                              ? "bg-brand-700 text-white"
-                              : "bg-white text-slate-700 hover:bg-slate-50"
-                          }`}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="col-span-2 flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm sm:col-span-1">
-                    <span className="text-slate-700">Sale Type:</span>
-                    <select
-                      value={saleType}
-                      onChange={(event) => setSaleType(event.target.value)}
-                      className="h-8 rounded-lg border border-slate-300 bg-white px-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-                    >
-                      <option value="ONLINE">ONLINE</option>
-                      <option value="OFFLINE">OFFLINE</option>
-                    </select>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={openDiscountPanel}
-                    className="h-11 rounded-xl border border-brand-500 bg-white px-4 text-brand-800 shadow-sm transition hover:bg-brand-50 sm:w-auto"
-                  >
-                    Discount
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={generateBill}
-                    disabled={!cart.length}
-                    className="h-11 rounded-xl bg-brand-700 px-4 font-semibold text-white shadow-sm transition hover:bg-brand-900 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Generate Bill
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={printBill}
-                    disabled={!bill || isPrinting}
-                    className="h-11 rounded-xl border border-brand-700 bg-white px-4 text-brand-800 shadow-sm transition hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {isPrinting ? "Printing..." : "Print Bill"}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={downloadPdf}
-                    disabled={!bill || isPdfGenerating || isPrinting}
-                    className="h-11 rounded-xl border border-slate-400 bg-white px-4 text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {isPdfGenerating ? "Generating PDF..." : "Download PDF"}
-                  </button>
-
-                  <div className="col-span-2 flex w-full flex-col gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm sm:w-auto sm:min-w-[300px] sm:flex-row sm:flex-wrap sm:items-center">
-                    <label className="text-slate-700" htmlFor="billBusinessSelect">
-                      Bill Name:
-                    </label>
-                    <select
-                      id="billBusinessSelect"
-                      value={selectedBusinessId}
-                      onChange={(event) => setSelectedBusinessId(event.target.value)}
-                      className="h-9 w-full rounded-lg border border-slate-300 bg-white px-2 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100 sm:w-auto sm:min-w-[170px]"
-                    >
-                      {BUSINESS_PROFILES.map((profile) => (
-                        <option key={profile.id} value={profile.id}>
-                          {profile.name}
-                        </option>
-                      ))}
-                    </select>
-
-                    <label
-                      className="flex items-center gap-2 whitespace-nowrap text-slate-700"
-                      htmlFor="printGstNoInput"
-                    >
-                      <input
-                        id="printGstNoInput"
-                        type="checkbox"
-                        checked={printGstNo}
-                        onChange={(event) => setPrintGstNo(event.target.checked)}
-                        className="h-4 w-4 accent-brand-700"
-                      />
-                      <span>Print GST No.</span>
-                    </label>
-
-                    {printGstNo ? (
-                      <span className="basis-full text-xs text-slate-500">
-                        GSTIN: {selectedBusiness.gstin}
-                      </span>
-                    ) : null}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={clearOrder}
-                    className="col-span-2 h-11 rounded-xl border border-red-300 bg-white px-4 text-red-700 shadow-sm transition hover:bg-red-50 sm:col-span-1"
-                  >
-                    Clear Cart
-                  </button>
-                </div>
-
-                <div className="mt-5">
-                  <h3 className="no-print mb-2 text-lg font-semibold text-brand-900">
-                    Receipt Preview
-                  </h3>
-                  <div className="overflow-x-auto rounded-xl bg-slate-50 p-3">
-                    <ThermalReceipt
-                      ref={receiptRef}
-                      bill={bill}
-                      restaurant={receiptRestaurant}
-                      className="thermal-screen-receipt"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-
-        {discountPanelOpen ? (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
-            <div className="w-full max-w-sm rounded-xl bg-white p-4 shadow-xl">
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-brand-900">Apply Discount</h3>
-                <button
-                  type="button"
-                  onClick={() => setDiscountPanelOpen(false)}
-                  className="rounded-md border border-slate-300 px-2 py-1 text-sm text-slate-700"
-                >
-                  Close
-                </button>
-              </div>
-
-              <label
-                className="mb-2 block text-sm text-slate-700"
-                htmlFor="discountPercentInput"
-              >
-                Discount percentage
-              </label>
-
-              <input
-                id="discountPercentInput"
-                type="number"
-                min="0"
-                max="100"
-                step="0.01"
-                value={discountInput}
-                onChange={(event) => {
-                  setDiscountInput(event.target.value);
-                  if (discountError) setDiscountError("");
-                }}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-brand-500"
-                placeholder="Enter discount %"
-              />
-              {discountError ? <p className="mt-2 text-xs text-red-600">{discountError}</p> : null}
-
-              <div className="mt-4 rounded-lg bg-brand-50 p-3 text-sm">
-                <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span>{"\u20B9"}{previewTotals.subtotal.toFixed(2)}</span>
-                </div>
-                <div className="mt-1 flex justify-between">
-                  <span>Discount ({previewTotals.discountPercent.toFixed(2)}%):</span>
-                  <span>-{"\u20B9"}{previewTotals.discountAmount.toFixed(2)}</span>
-                </div>
-                <div className="mt-1 flex justify-between font-semibold">
-                  <span>Final Payable:</span>
-                  <span>{"\u20B9"}{previewTotals.grandTotal.toFixed(2)}</span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={applyDiscount}
-                className="mt-4 w-full rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white"
-              >
-                Apply Discount
-              </button>
-            </div>
-          </div>
-        ) : null}
-      </main>
-
-      <div className="thermal-print-area" aria-hidden="true">
-        <ThermalReceipt
-          ref={printReceiptRef}
-          bill={bill}
-          restaurant={receiptRestaurant}
-          className="thermal-print-receipt"
-        />
-        <KotReceipt
-          ref={kotPrintReceiptRef}
-          bill={bill}
-          restaurant={receiptRestaurant}
-          className="thermal-print-receipt"
-        />
+    <main className="app-shell min-h-screen p-3 text-slate-800 sm:p-5">
+      <div className="mx-auto w-full max-w-7xl">
+        <header className="mb-4 rounded-2xl border border-white/80 bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur sm:p-5">
+          <h1 className="text-2xl font-bold text-brand-900 sm:text-3xl">
+            Website is not able to load as your payment is due. Please fulfill the payment to continue using the service. Contact support for assistance.
+          </h1>
+        </header>
       </div>
-    </>
+    </main>
   );
 }
+

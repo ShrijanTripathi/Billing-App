@@ -506,708 +506,720 @@ export default function MenuManagementClient() {
     }));
   };
 
-  return (
-    <>
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
-            Menu Management
+  // return (
+  //   <>
+  //     <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
+  //       <div>
+  //         <h1 className="text-2xl font-semibold text-slate-900">
+  //           Menu Management
+  //         </h1>
+  //         <p className="text-sm text-slate-600">
+  //           Backend-driven V2 menu, categories, variants, and addons.
+  //         </p>
+  //       </div>
+  //       <div className="flex flex-wrap gap-2">
+  //         <a
+  //           href="/admin/menu/import"
+  //           className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
+  //         >
+  //           Bulk Import
+  //         </a>
+  //         <button
+  //           type="button"
+  //           onClick={openCreateCategoryModal}
+  //           className="rounded-lg border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700"
+  //         >
+  //           Add Category
+  //         </button>
+  //         <button
+  //           type="button"
+  //           onClick={openCreateItemModal}
+  //           className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white"
+  //         >
+  //           Add Item
+  //         </button>
+  //       </div>
+  //     </header>
+
+  //     {error ? (
+  //       <div className="mb-5 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+  //         {error}
+  //       </div>
+  //     ) : null}
+
+  //     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+  //       <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+  //         <p className="text-sm text-slate-600">Visible items</p>
+  //         <p className="text-2xl font-semibold text-slate-900">
+  //           {dashboardStats.total}
+  //         </p>
+  //       </div>
+  //       <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+  //         <p className="text-sm text-emerald-700">Available</p>
+  //         <p className="text-2xl font-semibold text-emerald-900">
+  //           {dashboardStats.available}
+  //         </p>
+  //       </div>
+  //       <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+  //         <p className="text-sm text-slate-600">Categories</p>
+  //         <p className="text-2xl font-semibold text-slate-900">
+  //           {categories.length}
+  //         </p>
+  //       </div>
+  //       <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+  //         <p className="text-sm text-amber-700">Recommended</p>
+  //         <p className="text-2xl font-semibold text-amber-900">
+  //           {dashboardStats.recommended}
+  //         </p>
+  //       </div>
+  //     </section>
+
+  //     <section className="mt-6 rounded-xl border border-slate-200 p-4">
+  //       <div className="mb-4 grid gap-2 lg:grid-cols-[minmax(0,1fr)_220px_180px]">
+  //         <input
+  //           value={searchText}
+  //           onChange={(event) => setSearchText(event.target.value)}
+  //           placeholder="Search menu items"
+  //           className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //         />
+  //         <select
+  //           value={categoryFilter}
+  //           onChange={(event) => setCategoryFilter(event.target.value)}
+  //           className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //         >
+  //           <option value="all">All Categories</option>
+  //           {categories.map((category) => (
+  //             <option key={category.id} value={category.id}>
+  //               {category.name}
+  //             </option>
+  //           ))}
+  //         </select>
+  //         <select
+  //           value={statusFilter}
+  //           onChange={(event) => setStatusFilter(event.target.value)}
+  //           className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //         >
+  //           <option value="all">All Status</option>
+  //           <option value="available">Available</option>
+  //           <option value="unavailable">Unavailable</option>
+  //           <option value="active">Active</option>
+  //           <option value="inactive">Inactive</option>
+  //           <option value="recommended">Recommended</option>
+  //         </select>
+  //       </div>
+
+  //       {loading ? (
+  //         <p className="text-sm text-slate-500">Loading V2 menu...</p>
+  //       ) : null}
+
+  //       <div className="overflow-x-auto">
+  //         <table className="w-full min-w-[980px] text-left text-sm">
+  //           <thead>
+  //             <tr className="border-b border-slate-200 text-slate-600">
+  //               <th className="py-2">Item</th>
+  //               <th className="py-2">Category</th>
+  //               <th className="py-2">Type</th>
+  //               <th className="py-2">Price</th>
+  //               <th className="py-2">Status</th>
+  //               <th className="py-2">Actions</th>
+  //             </tr>
+  //           </thead>
+  //           <tbody>
+  //             {filteredItems.map((item) => (
+  //               <tr
+  //                 key={getItemId(item)}
+  //                 className="border-b border-slate-100 align-top"
+  //               >
+  //                 <td className="py-3 pr-3">
+  //                   <p className="font-medium text-slate-900">{item.name}</p>
+  //                   <p className="text-xs text-slate-500">
+  //                     {item.description || "No description"}
+  //                   </p>
+  //                   {safeArray(item.tags).length ? (
+  //                     <p className="mt-1 text-xs text-slate-500">
+  //                       Tags: {item.tags.join(", ")}
+  //                     </p>
+  //                   ) : null}
+  //                 </td>
+  //                 <td className="py-3 text-slate-700">
+  //                   {getCategoryName(item)}
+  //                 </td>
+  //                 <td className="py-3 text-slate-700">
+  //                   <p>{item.itemType || "regular"}</p>
+  //                   <p className="text-xs text-slate-500">
+  //                     {item.pricingType || "single"}
+  //                   </p>
+  //                 </td>
+  //                 <td className="py-3 text-slate-700">
+  //                   <p>{formatMoney(getDisplayPrice(item))}</p>
+  //                   {safeArray(item.variants).length ? (
+  //                     <p className="mt-1 max-w-xs text-xs text-slate-500">
+  //                       {item.variants
+  //                         .map(
+  //                           (variant) =>
+  //                             `${variant.label} ${formatMoney(variant.price)}`,
+  //                         )
+  //                         .join(" | ")}
+  //                     </p>
+  //                   ) : null}
+  //                   {safeArray(item.addons).length ? (
+  //                     <p className="mt-1 text-xs text-slate-500">
+  //                       {item.addons.length} addon(s)
+  //                     </p>
+  //                   ) : null}
+  //                 </td>
+  //                 <td className="py-3">
+  //                   <div className="flex flex-col items-start gap-2">
+  //                     <StatusPill item={item} />
+  //                     {item.isRecommended ? (
+  //                       <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">
+  //                         Recommended
+  //                       </span>
+  //                     ) : null}
+  //                   </div>
+  //                 </td>
+  //                 <td className="py-3">
+  //                   <div className="flex flex-wrap gap-2">
+  //                     <button
+  //                       type="button"
+  //                       onClick={(event) => handleEditItemAction(event, item)}
+  //                       className="rounded border border-slate-300 px-2 py-1 text-xs"
+  //                     >
+  //                       Edit
+  //                     </button>
+  //                     <button
+  //                       type="button"
+  //                       onClick={(event) => handleToggleItemAction(event, item)}
+  //                       className="rounded border border-emerald-300 px-2 py-1 text-xs text-emerald-700"
+  //                     >
+  //                       Toggle
+  //                     </button>
+  //                     <button
+  //                       type="button"
+  //                       onClick={(event) => handleDeleteItemAction(event, item)}
+  //                       className="rounded border border-red-300 px-2 py-1 text-xs text-red-700"
+  //                     >
+  //                       Delete
+  //                     </button>
+  //                   </div>
+  //                 </td>
+  //               </tr>
+  //             ))}
+  //             {!loading && filteredItems.length === 0 ? (
+  //               <tr>
+  //                 <td colSpan={6} className="py-8 text-center text-slate-500">
+  //                   No menu items found.
+  //                 </td>
+  //               </tr>
+  //             ) : null}
+  //           </tbody>
+  //         </table>
+  //       </div>
+  //     </section>
+
+  //     <section className="mt-6 rounded-xl border border-slate-200 p-4">
+  //       <div className="mb-4 flex items-center justify-between gap-2">
+  //         <h2 className="text-lg font-semibold text-slate-900">Categories</h2>
+  //         <button
+  //           type="button"
+  //           onClick={openCreateCategoryModal}
+  //           className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white"
+  //         >
+  //           Add Category
+  //         </button>
+  //       </div>
+
+  //       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+  //         {categories.map((category) => (
+  //           <article
+  //             key={category.id}
+  //             className="rounded-lg border border-slate-200 p-3"
+  //           >
+  //             <div className="flex items-start justify-between gap-3">
+  //               <div>
+  //                 <p className="font-medium text-slate-900">{category.name}</p>
+  //                 <p className="text-xs text-slate-500">
+  //                   Slug: {category.slug || "-"}
+  //                 </p>
+  //                 <p className="text-xs text-slate-500">
+  //                   Sort: {Number(category.sortOrder || 0)}
+  //                 </p>
+  //               </div>
+  //               <span
+  //                 className={`rounded-full px-2 py-1 text-xs font-medium ${
+  //                   category.isActive === false
+  //                     ? "bg-slate-200 text-slate-700"
+  //                     : "bg-emerald-100 text-emerald-700"
+  //                 }`}
+  //               >
+  //                 {category.isActive === false ? "Inactive" : "Active"}
+  //               </span>
+  //             </div>
+  //             <div className="mt-3 flex flex-wrap gap-2">
+  //               <button
+  //                 type="button"
+  //                 onClick={() => openEditCategoryModal(category)}
+  //                 className="rounded border border-slate-300 px-2 py-1 text-xs"
+  //               >
+  //                 Edit
+  //               </button>
+  //               <button
+  //                 type="button"
+  //                 onClick={() => toggleCategoryFlag(category)}
+  //                 className="rounded border border-emerald-300 px-2 py-1 text-xs text-emerald-700"
+  //               >
+  //                 Toggle Active
+  //               </button>
+  //               <button
+  //                 type="button"
+  //                 onClick={() => deleteCategory(category)}
+  //                 className="rounded border border-red-300 px-2 py-1 text-xs text-red-700"
+  //               >
+  //                 Delete
+  //               </button>
+  //             </div>
+  //           </article>
+  //         ))}
+  //         {!loading && categories.length === 0 ? (
+  //           <p className="text-sm text-slate-500">No categories available.</p>
+  //         ) : null}
+  //       </div>
+  //     </section>
+
+  //     <Modal
+  //       open={itemModalOpen}
+  //       onClose={() => setItemModalOpen(false)}
+  //       title={
+  //         itemModalMode === "create" ? "Create Menu Item" : "Edit Menu Item"
+  //       }
+  //       size="xl"
+  //     >
+  //       <form className="space-y-4" onSubmit={submitItemForm}>
+  //         {formError ? (
+  //           <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+  //             {formError}
+  //           </div>
+  //         ) : null}
+
+  //         <div className="grid gap-3 md:grid-cols-2">
+  //           <label className="text-sm font-medium text-slate-700">
+  //             Name
+  //             <input
+  //               value={itemForm.name}
+  //               onChange={(event) =>
+  //                 setItemForm((prev) => ({ ...prev, name: event.target.value }))
+  //               }
+  //               required
+  //               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //             />
+  //           </label>
+  //           <label className="text-sm font-medium text-slate-700">
+  //             Category
+  //             <select
+  //               value={itemForm.categoryId}
+  //               onChange={(event) => {
+  //                 const selectedCategory = categories.find(
+  //                   (category) => category.id === event.target.value,
+  //                 );
+  //                 setItemForm((prev) => ({
+  //                   ...prev,
+  //                   categoryId: event.target.value,
+  //                   categoryName: selectedCategory?.name || "",
+  //                 }));
+  //               }}
+  //               required
+  //               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //             >
+  //               <option value="">Select category</option>
+  //               {categories.map((category) => (
+  //                 <option key={category.id} value={category.id}>
+  //                   {category.name}
+  //                 </option>
+  //               ))}
+  //             </select>
+  //           </label>
+  //           <label className="text-sm font-medium text-slate-700">
+  //             Item Type
+  //             <select
+  //               value={itemForm.itemType}
+  //               onChange={(event) =>
+  //                 setItemForm((prev) => ({
+  //                   ...prev,
+  //                   itemType: event.target.value,
+  //                 }))
+  //               }
+  //               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //             >
+  //               {ITEM_TYPES.map((type) => (
+  //                 <option key={type} value={type}>
+  //                   {type}
+  //                 </option>
+  //               ))}
+  //             </select>
+  //           </label>
+  //           <label className="text-sm font-medium text-slate-700">
+  //             Pricing Type
+  //             <select
+  //               value={itemForm.pricingType}
+  //               onChange={(event) =>
+  //                 setItemForm((prev) => ({
+  //                   ...prev,
+  //                   pricingType: event.target.value,
+  //                 }))
+  //               }
+  //               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //             >
+  //               {PRICING_TYPES.map((type) => (
+  //                 <option key={type} value={type}>
+  //                   {type}
+  //                 </option>
+  //               ))}
+  //             </select>
+  //           </label>
+  //           <label className="text-sm font-medium text-slate-700">
+  //             Base Price
+  //             <input
+  //               value={itemForm.basePrice}
+  //               onChange={(event) =>
+  //                 setItemForm((prev) => ({
+  //                   ...prev,
+  //                   basePrice: event.target.value,
+  //                 }))
+  //               }
+  //               type="number"
+  //               step="0.01"
+  //               min="0"
+  //               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //             />
+  //           </label>
+  //           <label className="text-sm font-medium text-slate-700">
+  //             Sort Order
+  //             <input
+  //               value={itemForm.sortOrder}
+  //               onChange={(event) =>
+  //                 setItemForm((prev) => ({
+  //                   ...prev,
+  //                   sortOrder: event.target.value,
+  //                 }))
+  //               }
+  //               type="number"
+  //               step="1"
+  //               className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //             />
+  //           </label>
+  //         </div>
+
+  //         <label className="block text-sm font-medium text-slate-700">
+  //           Description
+  //           <textarea
+  //             value={itemForm.description}
+  //             onChange={(event) =>
+  //               setItemForm((prev) => ({
+  //                 ...prev,
+  //                 description: event.target.value,
+  //               }))
+  //             }
+  //             rows={3}
+  //             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //           />
+  //         </label>
+
+  //         <label className="block text-sm font-medium text-slate-700">
+  //           Tags
+  //           <input
+  //             value={itemForm.tags}
+  //             onChange={(event) =>
+  //               setItemForm((prev) => ({ ...prev, tags: event.target.value }))
+  //             }
+  //             placeholder="comma, separated, tags"
+  //             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //           />
+  //         </label>
+
+  //         <div className="grid gap-2 sm:grid-cols-3">
+  //           {[
+  //             ["isRecommended", "Recommended"],
+  //             ["isAvailable", "Available"],
+  //             ["isActive", "Active"],
+  //           ].map(([key, label]) => (
+  //             <label
+  //               key={key}
+  //               className="flex items-center gap-2 rounded-lg border border-slate-200 p-3 text-sm text-slate-700"
+  //             >
+  //               <input
+  //                 checked={Boolean(itemForm[key])}
+  //                 onChange={(event) =>
+  //                   setItemForm((prev) => ({
+  //                     ...prev,
+  //                     [key]: event.target.checked,
+  //                   }))
+  //                 }
+  //                 type="checkbox"
+  //               />
+  //               {label}
+  //             </label>
+  //           ))}
+  //         </div>
+
+  //         <section className="rounded-xl border border-slate-200 p-3">
+  //           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+  //             <h4 className="font-semibold text-slate-900">Variants</h4>
+  //             <div className="flex gap-2">
+  //               <button
+  //                 type="button"
+  //                 onClick={applyVariantPreset}
+  //                 className="rounded border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700"
+  //               >
+  //                 Use Pricing Preset
+  //               </button>
+  //               <button
+  //                 type="button"
+  //                 onClick={() =>
+  //                   setItemForm((prev) => ({
+  //                     ...prev,
+  //                     variants: [
+  //                       ...prev.variants,
+  //                       { label: "", code: "custom", price: "" },
+  //                     ],
+  //                   }))
+  //                 }
+  //                 className="rounded border border-emerald-300 px-3 py-2 text-xs font-medium text-emerald-700"
+  //               >
+  //                 Add Variant
+  //               </button>
+  //             </div>
+  //           </div>
+
+  //           <div className="space-y-2">
+  //             {itemForm.variants.map((variant, index) => (
+  //               <div
+  //                 key={`${variant.code}-${index}`}
+  //                 className="grid gap-2 md:grid-cols-[1fr_170px_160px_auto]"
+  //               >
+  //                 <input
+  //                   value={variant.label}
+  //                   onChange={(event) =>
+  //                     updateVariant(index, "label", event.target.value)
+  //                   }
+  //                   placeholder="Label"
+  //                   className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //                 />
+  //                 <select
+  //                   value={variant.code}
+  //                   onChange={(event) =>
+  //                     updateVariant(index, "code", event.target.value)
+  //                   }
+  //                   className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //                 >
+  //                   {VARIANT_CODES.map((code) => (
+  //                     <option key={code} value={code}>
+  //                       {code}
+  //                     </option>
+  //                   ))}
+  //                 </select>
+  //                 <input
+  //                   value={variant.price}
+  //                   onChange={(event) =>
+  //                     updateVariant(index, "price", event.target.value)
+  //                   }
+  //                   type="number"
+  //                   step="0.01"
+  //                   min="0"
+  //                   placeholder="Price"
+  //                   className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //                 />
+  //                 <button
+  //                   type="button"
+  //                   onClick={() =>
+  //                     setItemForm((prev) => ({
+  //                       ...prev,
+  //                       variants: prev.variants.filter(
+  //                         (_, variantIndex) => variantIndex !== index,
+  //                       ),
+  //                     }))
+  //                   }
+  //                   className="rounded border border-red-300 px-3 py-2 text-xs font-medium text-red-700"
+  //                 >
+  //                   Remove
+  //                 </button>
+  //               </div>
+  //             ))}
+  //             {itemForm.variants.length === 0 ? (
+  //               <p className="text-sm text-slate-500">
+  //                 No variants configured.
+  //               </p>
+  //             ) : null}
+  //           </div>
+  //         </section>
+
+  //         <section className="rounded-xl border border-slate-200 p-3">
+  //           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+  //             <h4 className="font-semibold text-slate-900">Addons</h4>
+  //             <button
+  //               type="button"
+  //               onClick={() =>
+  //                 setItemForm((prev) => ({
+  //                   ...prev,
+  //                   addons: [
+  //                     ...prev.addons,
+  //                     {
+  //                       id: crypto.randomUUID(),
+  //                       name: "",
+  //                       price: "",
+  //                     },
+  //                   ],
+  //                 }))
+  //               }
+  //               className="rounded border border-emerald-300 px-3 py-2 text-xs font-medium text-emerald-700"
+  //             >
+  //               Add Addon
+  //             </button>
+  //           </div>
+
+  //           <div className="space-y-2">
+  //             {itemForm.addons.map((addon, index) => (
+  //               <div
+  //                 key={`${addon.id}-${index}`}
+  //                 className="grid gap-2 md:grid-cols-[1fr_160px_auto]"
+  //               >
+  //                 <input
+  //                   value={addon.name}
+  //                   onChange={(event) =>
+  //                     updateAddon(addon.id, "name", event.target.value)
+  //                   }
+  //                   placeholder="Addon name"
+  //                   className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //                 />
+  //                 <input
+  //                   value={addon.price}
+  //                   onChange={(event) =>
+  //                     updateAddon(addon.id, "price", event.target.value)
+  //                   }
+  //                   type="number"
+  //                   step="0.01"
+  //                   min="0"
+  //                   placeholder="Price"
+  //                   className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //                 />
+  //                 <button
+  //                   type="button"
+  //                   onClick={() => {
+  //                     const addonId = addon.id;
+
+  //                     setItemForm((prev) => ({
+  //                       ...prev,
+  //                       addons: prev.addons.filter(
+  //                         (entry) => entry.id !== addonId,
+  //                       ),
+  //                     }));
+  //                   }}
+  //                   className="rounded border border-red-300 px-3 py-2 text-xs font-medium text-red-700"
+  //                 >
+  //                   Remove
+  //                 </button>
+  //               </div>
+  //             ))}
+  //             {itemForm.addons.length === 0 ? (
+  //               <p className="text-sm text-slate-500">No addons configured.</p>
+  //             ) : null}
+  //           </div>
+  //         </section>
+
+  //         <button
+  //           type="submit"
+  //           disabled={saving}
+  //           className="w-full rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+  //         >
+  //           {saving
+  //             ? "Saving..."
+  //             : itemModalMode === "create"
+  //               ? "Create Item"
+  //               : "Save Changes"}
+  //         </button>
+  //       </form>
+  //     </Modal>
+
+  //     <Modal
+  //       open={categoryModalOpen}
+  //       onClose={() => setCategoryModalOpen(false)}
+  //       title={
+  //         categoryModalMode === "create" ? "Create Category" : "Edit Category"
+  //       }
+  //       size="lg"
+  //     >
+  //       <form className="space-y-4" onSubmit={submitCategoryForm}>
+  //         {formError ? (
+  //           <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+  //             {formError}
+  //           </div>
+  //         ) : null}
+  //         <label className="block text-sm font-medium text-slate-700">
+  //           Name
+  //           <input
+  //             value={categoryForm.name}
+  //             onChange={(event) =>
+  //               setCategoryForm((prev) => ({
+  //                 ...prev,
+  //                 name: event.target.value,
+  //               }))
+  //             }
+  //             required
+  //             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //           />
+  //         </label>
+  //         <label className="block text-sm font-medium text-slate-700">
+  //           Sort Order
+  //           <input
+  //             value={categoryForm.sortOrder}
+  //             onChange={(event) =>
+  //               setCategoryForm((prev) => ({
+  //                 ...prev,
+  //                 sortOrder: event.target.value,
+  //               }))
+  //             }
+  //             type="number"
+  //             step="1"
+  //             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
+  //           />
+  //         </label>
+  //         <label className="flex items-center gap-2 rounded-lg border border-slate-200 p-3 text-sm text-slate-700">
+  //           <input
+  //             checked={categoryForm.isActive}
+  //             onChange={(event) =>
+  //               setCategoryForm((prev) => ({
+  //                 ...prev,
+  //                 isActive: event.target.checked,
+  //               }))
+  //             }
+  //             type="checkbox"
+  //           />
+  //           Active
+  //         </label>
+  //         <button
+  //           type="submit"
+  //           disabled={saving}
+  //           className="w-full rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+  //         >
+  //           {saving
+  //             ? "Saving..."
+  //             : categoryModalMode === "create"
+  //               ? "Create Category"
+  //               : "Save Category"}
+  //         </button>
+  //       </form>
+  //     </Modal>
+  //   </>
+  // );
+
+   return (
+    <main className="app-shell min-h-screen p-3 text-slate-800 sm:p-5">
+      <div className="mx-auto w-full max-w-7xl">
+        <header className="mb-4 rounded-2xl border border-white/80 bg-white/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur sm:p-5">
+          <h1 className="text-2xl font-bold text-brand-900 sm:text-3xl">
+            Website is not able to load as your payment is due. Please fulfill the payment to continue using the service. Contact support for assistance.
           </h1>
-          <p className="text-sm text-slate-600">
-            Backend-driven V2 menu, categories, variants, and addons.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <a
-            href="/admin/menu/import"
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
-          >
-            Bulk Import
-          </a>
-          <button
-            type="button"
-            onClick={openCreateCategoryModal}
-            className="rounded-lg border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700"
-          >
-            Add Category
-          </button>
-          <button
-            type="button"
-            onClick={openCreateItemModal}
-            className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white"
-          >
-            Add Item
-          </button>
-        </div>
-      </header>
-
-      {error ? (
-        <div className="mb-5 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          {error}
-        </div>
-      ) : null}
-
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-          <p className="text-sm text-slate-600">Visible items</p>
-          <p className="text-2xl font-semibold text-slate-900">
-            {dashboardStats.total}
-          </p>
-        </div>
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-sm text-emerald-700">Available</p>
-          <p className="text-2xl font-semibold text-emerald-900">
-            {dashboardStats.available}
-          </p>
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-          <p className="text-sm text-slate-600">Categories</p>
-          <p className="text-2xl font-semibold text-slate-900">
-            {categories.length}
-          </p>
-        </div>
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <p className="text-sm text-amber-700">Recommended</p>
-          <p className="text-2xl font-semibold text-amber-900">
-            {dashboardStats.recommended}
-          </p>
-        </div>
-      </section>
-
-      <section className="mt-6 rounded-xl border border-slate-200 p-4">
-        <div className="mb-4 grid gap-2 lg:grid-cols-[minmax(0,1fr)_220px_180px]">
-          <input
-            value={searchText}
-            onChange={(event) => setSearchText(event.target.value)}
-            placeholder="Search menu items"
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-          />
-          <select
-            value={categoryFilter}
-            onChange={(event) => setCategoryFilter(event.target.value)}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-          >
-            <option value="all">All Categories</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-          <select
-            value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value)}
-            className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-          >
-            <option value="all">All Status</option>
-            <option value="available">Available</option>
-            <option value="unavailable">Unavailable</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-            <option value="recommended">Recommended</option>
-          </select>
-        </div>
-
-        {loading ? (
-          <p className="text-sm text-slate-500">Loading V2 menu...</p>
-        ) : null}
-
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[980px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 text-slate-600">
-                <th className="py-2">Item</th>
-                <th className="py-2">Category</th>
-                <th className="py-2">Type</th>
-                <th className="py-2">Price</th>
-                <th className="py-2">Status</th>
-                <th className="py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredItems.map((item) => (
-                <tr
-                  key={getItemId(item)}
-                  className="border-b border-slate-100 align-top"
-                >
-                  <td className="py-3 pr-3">
-                    <p className="font-medium text-slate-900">{item.name}</p>
-                    <p className="text-xs text-slate-500">
-                      {item.description || "No description"}
-                    </p>
-                    {safeArray(item.tags).length ? (
-                      <p className="mt-1 text-xs text-slate-500">
-                        Tags: {item.tags.join(", ")}
-                      </p>
-                    ) : null}
-                  </td>
-                  <td className="py-3 text-slate-700">
-                    {getCategoryName(item)}
-                  </td>
-                  <td className="py-3 text-slate-700">
-                    <p>{item.itemType || "regular"}</p>
-                    <p className="text-xs text-slate-500">
-                      {item.pricingType || "single"}
-                    </p>
-                  </td>
-                  <td className="py-3 text-slate-700">
-                    <p>{formatMoney(getDisplayPrice(item))}</p>
-                    {safeArray(item.variants).length ? (
-                      <p className="mt-1 max-w-xs text-xs text-slate-500">
-                        {item.variants
-                          .map(
-                            (variant) =>
-                              `${variant.label} ${formatMoney(variant.price)}`,
-                          )
-                          .join(" | ")}
-                      </p>
-                    ) : null}
-                    {safeArray(item.addons).length ? (
-                      <p className="mt-1 text-xs text-slate-500">
-                        {item.addons.length} addon(s)
-                      </p>
-                    ) : null}
-                  </td>
-                  <td className="py-3">
-                    <div className="flex flex-col items-start gap-2">
-                      <StatusPill item={item} />
-                      {item.isRecommended ? (
-                        <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">
-                          Recommended
-                        </span>
-                      ) : null}
-                    </div>
-                  </td>
-                  <td className="py-3">
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={(event) => handleEditItemAction(event, item)}
-                        className="rounded border border-slate-300 px-2 py-1 text-xs"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(event) => handleToggleItemAction(event, item)}
-                        className="rounded border border-emerald-300 px-2 py-1 text-xs text-emerald-700"
-                      >
-                        Toggle
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(event) => handleDeleteItemAction(event, item)}
-                        className="rounded border border-red-300 px-2 py-1 text-xs text-red-700"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {!loading && filteredItems.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-500">
-                    No menu items found.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="mt-6 rounded-xl border border-slate-200 p-4">
-        <div className="mb-4 flex items-center justify-between gap-2">
-          <h2 className="text-lg font-semibold text-slate-900">Categories</h2>
-          <button
-            type="button"
-            onClick={openCreateCategoryModal}
-            className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white"
-          >
-            Add Category
-          </button>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {categories.map((category) => (
-            <article
-              key={category.id}
-              className="rounded-lg border border-slate-200 p-3"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-medium text-slate-900">{category.name}</p>
-                  <p className="text-xs text-slate-500">
-                    Slug: {category.slug || "-"}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    Sort: {Number(category.sortOrder || 0)}
-                  </p>
-                </div>
-                <span
-                  className={`rounded-full px-2 py-1 text-xs font-medium ${
-                    category.isActive === false
-                      ? "bg-slate-200 text-slate-700"
-                      : "bg-emerald-100 text-emerald-700"
-                  }`}
-                >
-                  {category.isActive === false ? "Inactive" : "Active"}
-                </span>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => openEditCategoryModal(category)}
-                  className="rounded border border-slate-300 px-2 py-1 text-xs"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => toggleCategoryFlag(category)}
-                  className="rounded border border-emerald-300 px-2 py-1 text-xs text-emerald-700"
-                >
-                  Toggle Active
-                </button>
-                <button
-                  type="button"
-                  onClick={() => deleteCategory(category)}
-                  className="rounded border border-red-300 px-2 py-1 text-xs text-red-700"
-                >
-                  Delete
-                </button>
-              </div>
-            </article>
-          ))}
-          {!loading && categories.length === 0 ? (
-            <p className="text-sm text-slate-500">No categories available.</p>
-          ) : null}
-        </div>
-      </section>
-
-      <Modal
-        open={itemModalOpen}
-        onClose={() => setItemModalOpen(false)}
-        title={
-          itemModalMode === "create" ? "Create Menu Item" : "Edit Menu Item"
-        }
-        size="xl"
-      >
-        <form className="space-y-4" onSubmit={submitItemForm}>
-          {formError ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-              {formError}
-            </div>
-          ) : null}
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <label className="text-sm font-medium text-slate-700">
-              Name
-              <input
-                value={itemForm.name}
-                onChange={(event) =>
-                  setItemForm((prev) => ({ ...prev, name: event.target.value }))
-                }
-                required
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-              />
-            </label>
-            <label className="text-sm font-medium text-slate-700">
-              Category
-              <select
-                value={itemForm.categoryId}
-                onChange={(event) => {
-                  const selectedCategory = categories.find(
-                    (category) => category.id === event.target.value,
-                  );
-                  setItemForm((prev) => ({
-                    ...prev,
-                    categoryId: event.target.value,
-                    categoryName: selectedCategory?.name || "",
-                  }));
-                }}
-                required
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-              >
-                <option value="">Select category</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="text-sm font-medium text-slate-700">
-              Item Type
-              <select
-                value={itemForm.itemType}
-                onChange={(event) =>
-                  setItemForm((prev) => ({
-                    ...prev,
-                    itemType: event.target.value,
-                  }))
-                }
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-              >
-                {ITEM_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="text-sm font-medium text-slate-700">
-              Pricing Type
-              <select
-                value={itemForm.pricingType}
-                onChange={(event) =>
-                  setItemForm((prev) => ({
-                    ...prev,
-                    pricingType: event.target.value,
-                  }))
-                }
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-              >
-                {PRICING_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="text-sm font-medium text-slate-700">
-              Base Price
-              <input
-                value={itemForm.basePrice}
-                onChange={(event) =>
-                  setItemForm((prev) => ({
-                    ...prev,
-                    basePrice: event.target.value,
-                  }))
-                }
-                type="number"
-                step="0.01"
-                min="0"
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-              />
-            </label>
-            <label className="text-sm font-medium text-slate-700">
-              Sort Order
-              <input
-                value={itemForm.sortOrder}
-                onChange={(event) =>
-                  setItemForm((prev) => ({
-                    ...prev,
-                    sortOrder: event.target.value,
-                  }))
-                }
-                type="number"
-                step="1"
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-              />
-            </label>
-          </div>
-
-          <label className="block text-sm font-medium text-slate-700">
-            Description
-            <textarea
-              value={itemForm.description}
-              onChange={(event) =>
-                setItemForm((prev) => ({
-                  ...prev,
-                  description: event.target.value,
-                }))
-              }
-              rows={3}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-            />
-          </label>
-
-          <label className="block text-sm font-medium text-slate-700">
-            Tags
-            <input
-              value={itemForm.tags}
-              onChange={(event) =>
-                setItemForm((prev) => ({ ...prev, tags: event.target.value }))
-              }
-              placeholder="comma, separated, tags"
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-            />
-          </label>
-
-          <div className="grid gap-2 sm:grid-cols-3">
-            {[
-              ["isRecommended", "Recommended"],
-              ["isAvailable", "Available"],
-              ["isActive", "Active"],
-            ].map(([key, label]) => (
-              <label
-                key={key}
-                className="flex items-center gap-2 rounded-lg border border-slate-200 p-3 text-sm text-slate-700"
-              >
-                <input
-                  checked={Boolean(itemForm[key])}
-                  onChange={(event) =>
-                    setItemForm((prev) => ({
-                      ...prev,
-                      [key]: event.target.checked,
-                    }))
-                  }
-                  type="checkbox"
-                />
-                {label}
-              </label>
-            ))}
-          </div>
-
-          <section className="rounded-xl border border-slate-200 p-3">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <h4 className="font-semibold text-slate-900">Variants</h4>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={applyVariantPreset}
-                  className="rounded border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700"
-                >
-                  Use Pricing Preset
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setItemForm((prev) => ({
-                      ...prev,
-                      variants: [
-                        ...prev.variants,
-                        { label: "", code: "custom", price: "" },
-                      ],
-                    }))
-                  }
-                  className="rounded border border-emerald-300 px-3 py-2 text-xs font-medium text-emerald-700"
-                >
-                  Add Variant
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              {itemForm.variants.map((variant, index) => (
-                <div
-                  key={`${variant.code}-${index}`}
-                  className="grid gap-2 md:grid-cols-[1fr_170px_160px_auto]"
-                >
-                  <input
-                    value={variant.label}
-                    onChange={(event) =>
-                      updateVariant(index, "label", event.target.value)
-                    }
-                    placeholder="Label"
-                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-                  />
-                  <select
-                    value={variant.code}
-                    onChange={(event) =>
-                      updateVariant(index, "code", event.target.value)
-                    }
-                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-                  >
-                    {VARIANT_CODES.map((code) => (
-                      <option key={code} value={code}>
-                        {code}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    value={variant.price}
-                    onChange={(event) =>
-                      updateVariant(index, "price", event.target.value)
-                    }
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Price"
-                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-                  />
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setItemForm((prev) => ({
-                        ...prev,
-                        variants: prev.variants.filter(
-                          (_, variantIndex) => variantIndex !== index,
-                        ),
-                      }))
-                    }
-                    className="rounded border border-red-300 px-3 py-2 text-xs font-medium text-red-700"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-              {itemForm.variants.length === 0 ? (
-                <p className="text-sm text-slate-500">
-                  No variants configured.
-                </p>
-              ) : null}
-            </div>
-          </section>
-
-          <section className="rounded-xl border border-slate-200 p-3">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <h4 className="font-semibold text-slate-900">Addons</h4>
-              <button
-                type="button"
-                onClick={() =>
-                  setItemForm((prev) => ({
-                    ...prev,
-                    addons: [
-                      ...prev.addons,
-                      {
-                        id: crypto.randomUUID(),
-                        name: "",
-                        price: "",
-                      },
-                    ],
-                  }))
-                }
-                className="rounded border border-emerald-300 px-3 py-2 text-xs font-medium text-emerald-700"
-              >
-                Add Addon
-              </button>
-            </div>
-
-            <div className="space-y-2">
-              {itemForm.addons.map((addon, index) => (
-                <div
-                  key={`${addon.id}-${index}`}
-                  className="grid gap-2 md:grid-cols-[1fr_160px_auto]"
-                >
-                  <input
-                    value={addon.name}
-                    onChange={(event) =>
-                      updateAddon(addon.id, "name", event.target.value)
-                    }
-                    placeholder="Addon name"
-                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-                  />
-                  <input
-                    value={addon.price}
-                    onChange={(event) =>
-                      updateAddon(addon.id, "price", event.target.value)
-                    }
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Price"
-                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const addonId = addon.id;
-
-                      setItemForm((prev) => ({
-                        ...prev,
-                        addons: prev.addons.filter(
-                          (entry) => entry.id !== addonId,
-                        ),
-                      }));
-                    }}
-                    className="rounded border border-red-300 px-3 py-2 text-xs font-medium text-red-700"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-              {itemForm.addons.length === 0 ? (
-                <p className="text-sm text-slate-500">No addons configured.</p>
-              ) : null}
-            </div>
-          </section>
-
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-          >
-            {saving
-              ? "Saving..."
-              : itemModalMode === "create"
-                ? "Create Item"
-                : "Save Changes"}
-          </button>
-        </form>
-      </Modal>
-
-      <Modal
-        open={categoryModalOpen}
-        onClose={() => setCategoryModalOpen(false)}
-        title={
-          categoryModalMode === "create" ? "Create Category" : "Edit Category"
-        }
-        size="lg"
-      >
-        <form className="space-y-4" onSubmit={submitCategoryForm}>
-          {formError ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-              {formError}
-            </div>
-          ) : null}
-          <label className="block text-sm font-medium text-slate-700">
-            Name
-            <input
-              value={categoryForm.name}
-              onChange={(event) =>
-                setCategoryForm((prev) => ({
-                  ...prev,
-                  name: event.target.value,
-                }))
-              }
-              required
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-            />
-          </label>
-          <label className="block text-sm font-medium text-slate-700">
-            Sort Order
-            <input
-              value={categoryForm.sortOrder}
-              onChange={(event) =>
-                setCategoryForm((prev) => ({
-                  ...prev,
-                  sortOrder: event.target.value,
-                }))
-              }
-              type="number"
-              step="1"
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-emerald-600"
-            />
-          </label>
-          <label className="flex items-center gap-2 rounded-lg border border-slate-200 p-3 text-sm text-slate-700">
-            <input
-              checked={categoryForm.isActive}
-              onChange={(event) =>
-                setCategoryForm((prev) => ({
-                  ...prev,
-                  isActive: event.target.checked,
-                }))
-              }
-              type="checkbox"
-            />
-            Active
-          </label>
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full rounded-lg bg-emerald-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-          >
-            {saving
-              ? "Saving..."
-              : categoryModalMode === "create"
-                ? "Create Category"
-                : "Save Category"}
-          </button>
-        </form>
-      </Modal>
-    </>
+        </header>
+      </div>
+    </main>
   );
 }
